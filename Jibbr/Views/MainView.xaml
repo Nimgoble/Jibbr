@@ -4,26 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Width="300" Height="300" Background="LightBlue">
-        <StackPanel>
-            <TextBox 
-                Text="{Binding UserName}" 
-                Width="250" 
+             mc:Ignorable="d" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="500"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel Grid.Column="1">
+            <Button 
+                Width="200" 
                 Height="30" 
-                Margin="10" 
-                Controls:TextboxHelper.Watermark="Username"/>
-            <TextBox 
-                Text="{Binding Password}" 
-                Width="250" 
-                Height="30" 
-                Margin="10" 
-                Controls:TextboxHelper.Watermark="Password"/>
-            
-            <Button Width="200" Margin="10" Command="{Binding SignIn}">
-                <TextBlock>Sign In</TextBlock>
-            </Button>
+                Content="Add Account" 
+                Command="{Binding AddAccount}"
+                Margin="10"/>
         </StackPanel>
     </Grid>
 </Controls:MetroWindow>
