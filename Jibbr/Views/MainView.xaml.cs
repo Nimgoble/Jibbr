@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Jibbr
+namespace Jibbr.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainView : MahApps.Metro.Controls.MetroWindow
     {
-        public MainWindow()
+        public MainView()
         {
             InitializeComponent();
         }
