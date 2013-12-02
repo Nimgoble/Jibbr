@@ -18,8 +18,9 @@ namespace Jibbr.Views
     /// <summary>
     /// Interaction logic for AccountView.xaml
     /// </summary>
-    public partial class AccountView : MahApps.Metro.Controls.MetroWindow
+    public partial class AccountView : MahApps.Metro.Controls.MetroContentControl
     {
+        
         public AccountView()
         {
             InitializeComponent();
