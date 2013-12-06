@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Jibbr.Views
 {
     /// <summary>
-    /// Interaction logic for MainView.xaml
+    /// Interaction logic for ShellView.xaml
     /// </summary>
-    public partial class MainView : UserControl
+    public partial class ShellView : MahApps.Metro.Controls.MetroWindow
     {
-        public MainView()
+        public ShellView()
         {
             InitializeComponent();
         }

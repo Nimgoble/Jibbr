@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
-using Jibbr.ViewModels;
 
-namespace Jibbr
+namespace Jibbr.ViewModels
 {
-    public class AppBootstrapper : Bootstrapper<ShellViewModel>
+    public interface IShell : IConductor, IGuardClose
     {
     }
 }

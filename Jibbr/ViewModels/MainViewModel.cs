@@ -12,6 +12,10 @@ namespace Jibbr.ViewModels
 {
     public class MainViewModel : Screen
     {
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+        }
         
         public MainViewModel()
         {

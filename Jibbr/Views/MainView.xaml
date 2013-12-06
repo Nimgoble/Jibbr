@@ -1,9 +1,8 @@
-﻿<Controls:MetroWindow x:Class="Jibbr.Views.MainView"
+﻿<UserControl x:Class="Jibbr.Views.MainView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:jibbr="clr-namespace:Jibbr.Views;assembly=Jibbr"
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
              mc:Ignorable="d" >
@@ -31,4 +30,4 @@
             <ContentControl cal:View.Model="{Binding CurrentAccount}" />
         </StackPanel>
     </Grid>
-</Controls:MetroWindow>
+</UserControl>
