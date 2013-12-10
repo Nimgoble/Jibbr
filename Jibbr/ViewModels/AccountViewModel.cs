@@ -15,6 +15,7 @@ namespace Jibbr.ViewModels
         private agsXMPP.XmppClientConnection clientConnection;
         public AccountViewModel()
         {
+            username = serverName = password = String.Empty;
         }
 
         public void SignIn()
@@ -187,6 +188,20 @@ namespace Jibbr.ViewModels
 
         #region Properties
 
+        private bool useThisAccount;
+        public bool UseThisAccount
+        {
+            get { return useThisAccount; }
+            set
+            {
+                if (value == useThisAccount)
+                    return;
+
+                useThisAccount = value;
+                NotifyOfPropertyChange(() => UseThisAccount);
+            }
+        }
+
         private bool useTSL;
         public bool UseTSL
         {
@@ -226,6 +241,7 @@ namespace Jibbr.ViewModels
 
                 username = value;
                 NotifyOfPropertyChange(() => UserName);
+                NotifyOfPropertyChange(() => AccountJid);
             }
         }
 
@@ -254,9 +270,17 @@ namespace Jibbr.ViewModels
 
                 serverName = value;
                 NotifyOfPropertyChange(() => ServerName);
+                NotifyOfPropertyChange(() => AccountJid);
             }
         }
 
+        public Jid AccountJid
+        {
+            get 
+            {
+                return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
+            }
+        }
         #endregion
     }
 }

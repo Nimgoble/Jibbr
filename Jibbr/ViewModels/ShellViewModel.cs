@@ -12,11 +12,14 @@ namespace Jibbr.ViewModels
     public class ShellViewModel : Conductor<Screen>.Collection.OneActive/*, IShell*/
     {
         private MainViewModel mainViewModel;
+        private AccountsViewModel accountsViewModel;
         //[ImportingConstructor]
         public ShellViewModel()
         {
             mainViewModel = new MainViewModel();
+            accountsViewModel = new AccountsViewModel();
             ActiveItem = mainViewModel;
+            DisplayName = "Jibbr";
         }
 
         public void ShowMain()
@@ -26,6 +29,7 @@ namespace Jibbr.ViewModels
 
         public void ShowAccounts()
         {
+            ActiveItem = accountsViewModel;
         }
     }
 }

@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:jibbr="clr-namespace:Jibbr.Views;assembly=Jibbr"
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
              mc:Ignorable="d" >
     <Grid>
@@ -13,21 +12,12 @@
         </Grid.ColumnDefinitions>
         
         <StackPanel Grid.Column="1">
-            <Button 
-                x:Name="AddAccount"
-                Width="200" 
-                Height="30" 
-                Content="Add Account" 
-                Margin="10"/>
             <ListView DataContext="{Binding Accounts}">
                 <ListView.ItemTemplate>
                     <DataTemplate >
-                        <ContentControl cal:View.Model="{Binding}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            
-            <ContentControl cal:View.Model="{Binding CurrentAccount}" />
         </StackPanel>
     </Grid>
 </UserControl>
