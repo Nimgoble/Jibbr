@@ -5,88 +5,50 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
+using Caliburn.Micro.ReactiveUI;
+using Jibbr.Events;
 
 namespace Jibbr.ViewModels
 {
-    public class AccountsViewModel : Screen
+    public class AccountsViewModel : 
+        ReactiveConductor<ReactiveScreen>.Collection.OneActive, 
+        IHandle<CloseScreenEvent>
     {
-        public AccountsViewModel()
+        private AccountsListViewModel accountsListViewModel;
+        private readonly IEventAggregator eventAggregator;
+        public AccountsViewModel(IEventAggregator eventAggregator)
         {
-            accounts = new ObservableCollection<AccountViewModel>();
-            AddAccountVisibility = System.Windows.Visibility.Collapsed;
+            this.eventAggregator = eventAggregator;
+            eventAggregator.Subscribe(this);
+            accountsListViewModel = new AccountsListViewModel(eventAggregator);
         }
 
+        #region Commands
         public void NewAccount()
         {
-            NewAccountViewModel = new AccountViewModel();
-            AddAccountVisibility = System.Windows.Visibility.Visible;
+            AddAccountViewModel accountViewModel = new AddAccountViewModel(eventAggregator);
+            this.ActivateItem(accountViewModel);
         }
+        #endregion
 
-        public void AddAccount()
+        #region IHandle
+        public void Handle(CloseScreenEvent ev)
         {
-            if (String.IsNullOrEmpty(NewAccountViewModel.UserName))
-                return;
+            if (ev.ScreenToClose == this.ActiveItem)
+                this.ActiveItem.TryClose();
 
-            if (String.IsNullOrEmpty(NewAccountViewModel.Password))
-                return;
-
-            if (String.IsNullOrEmpty(NewAccountViewModel.ServerName))
-                return;
-
-            Accounts.Add(NewAccountViewModel);
-            NotifyOfPropertyChange(() => Accounts);
-
-            AddAccountVisibility = System.Windows.Visibility.Collapsed;
+            this.ActivateItem(accountsListViewModel);
         }
+        #endregion
 
-        public void CancelAccount()
-        {
-            AddAccountVisibility = System.Windows.Visibility.Collapsed;
-        }
-
-        private ObservableCollection<AccountViewModel> accounts;
-        public ObservableCollection<AccountViewModel> Accounts
+        #region Properties
+        public System.Windows.Visibility NewAccountVisibility
         {
             get
             {
-                return accounts;
-            }
-            set
-            {
-                if (value == accounts)
-                    return;
-
-                accounts = value;
-                NotifyOfPropertyChange(() => Accounts);
+                return (this.ActiveItem == accountsListViewModel) ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
             }
         }
-
-        private AccountViewModel newAccountViewModel;
-        public AccountViewModel NewAccountViewModel
-        {
-            get { return newAccountViewModel; }
-            set
-            {
-                if (value == newAccountViewModel)
-                    return;
-
-                newAccountViewModel = value;
-                NotifyOfPropertyChange(() => NewAccountViewModel);
-            }
-        }
-
-        private System.Windows.Visibility addAccountVisibility;
-        public System.Windows.Visibility AddAccountVisibility
-        {
-            get { return addAccountVisibility; }
-            set
-            {
-                if (value == addAccountVisibility)
-                    return;
-
-                addAccountVisibility = value;
-                NotifyOfPropertyChange(() => AddAccountVisibility);
-            }
-        }
+        #endregion
     }
 }

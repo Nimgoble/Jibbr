@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="Jibbr.Views.AccountsListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <ListView x:Name="Accounts">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="10,0">
+                        <CheckBox 
+                                IsChecked="{Binding Path=UseThisAccount}" 
+                                Margin="10,0,10,0" 
+                                Content="Use This Account" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            />
+                        <TextBlock 
+                                Text="{Binding Path=AccountJid}" 
+                                Margin="10,0,10,0" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                            />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</UserControl>

@@ -13,11 +13,13 @@ namespace Jibbr.ViewModels
     {
         private MainViewModel mainViewModel;
         private AccountsViewModel accountsViewModel;
+        private readonly IEventAggregator eventAggregator;
         //[ImportingConstructor]
-        public ShellViewModel()
+        public ShellViewModel(IEventAggregator eventAggregator)
         {
+            this.eventAggregator = eventAggregator;
             mainViewModel = new MainViewModel();
-            accountsViewModel = new AccountsViewModel();
+            accountsViewModel = new AccountsViewModel(eventAggregator);
             ActiveItem = mainViewModel;
             DisplayName = "Jibbr";
         }

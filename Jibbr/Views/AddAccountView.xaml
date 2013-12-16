@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="Jibbr.Views.AddAccountView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel Height="250" Width="300">
+        <TextBox
+                    Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}"
+                    Width="250"
+                    Height="30" 
+                    Margin="10" 
+                    Controls:TextboxHelper.Watermark="Server"/>
+        <TextBox 
+                    Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" 
+                    Width="250" 
+                    Height="30" 
+                    Margin="10" 
+                    Controls:TextboxHelper.Watermark="Username"/>
+        <TextBox 
+                    Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" 
+                    Width="250" 
+                    Height="30" 
+                    Margin="10" 
+                    Controls:TextboxHelper.Watermark="Password"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <CheckBox 
+                        IsChecked="{Binding UseSSL}" 
+                        Content="SSL" 
+                        Grid.Column="0" 
+                        HorizontalAlignment="Center"/>
+            <CheckBox 
+                        IsChecked="{Binding UseTSL}" 
+                        Content="TSL" 
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"/>
+        </Grid>
+        <Grid Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Button 
+                        x:Name="AddAccount" 
+                        Grid.Column="0" 
+                        HorizontalAlignment="Center" 
+                        Content="Add" 
+                        Width="75"
+                        Margin="10"
+                    />
+            <Button 
+                        x:Name="CancelAccount" 
+                        Grid.Column="1" 
+                        HorizontalAlignment="Center" 
+                        Content="Cancel" 
+                        Width="75"
+                        Margin="10"
+                    />
+        </Grid>
+    </StackPanel>
+</UserControl>
