@@ -2,33 +2,35 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
+using ReactiveUI;
+using ReactiveUI.Xaml;
+
 
 namespace Jibbr.ViewModels
 {
-    public class AddAccountViewModel : Caliburn.Micro.ReactiveUI.ReactiveScreen
+    public class AddAccountViewModel : AccountViewModel
     {
         private readonly IEventAggregator eventAggregator;
-        private AccountViewModel accountViewModel;
         public AddAccountViewModel(IEventAggregator eventAggregator)
         {
             this.eventAggregator = eventAggregator;
-            accountViewModel = new AccountViewModel();
 
-            //var canAddAccount = this.
+            this.WhenAny(x => x.ServerName, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
+            this.WhenAny(x => x.UserName, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
+            this.WhenAny(x => x.Password, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
         }
 
-        public ReactiveUI.ReactiveCommand AddAccount { get; protected set; }
-
-        public void fAddAccount()
+        public void AddAccount()
         {
             //accounts.Add(NewAccountViewModel);
             //Send out add account event
             Jibbr.Events.AddAccountEvent addAccountEvent = new Events.AddAccountEvent();
-            addAccountEvent.Account = accountViewModel;
+            addAccountEvent.Account = this;
             eventAggregator.Publish(addAccountEvent);
             //Send out close event
             eventAggregator.Publish
@@ -44,14 +46,13 @@ namespace Jibbr.ViewModels
         {
             get
             {
-
-                if (String.IsNullOrEmpty(accountViewModel.UserName))
+                if (String.IsNullOrEmpty(UserName))
                     return false;
 
-                if (String.IsNullOrEmpty(accountViewModel.Password))
+                if (String.IsNullOrEmpty(Password))
                     return false;
 
-                if (String.IsNullOrEmpty(accountViewModel.ServerName))
+                if (String.IsNullOrEmpty(ServerName))
                     return false;
 
                 return true;

@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
+using ReactiveUI;
+using ReactiveUI.Xaml;
+
 using Jibbr.Events;
 
 namespace Jibbr.ViewModels
@@ -21,6 +24,7 @@ namespace Jibbr.ViewModels
             this.eventAggregator = eventAggregator;
             eventAggregator.Subscribe(this);
             accountsListViewModel = new AccountsListViewModel(eventAggregator);
+            this.ActivateItem(accountsListViewModel);
         }
 
         #region Commands
@@ -50,5 +54,11 @@ namespace Jibbr.ViewModels
             }
         }
         #endregion
+
+        protected override void OnActivationProcessed(ReactiveScreen item, bool success)
+        {
+            NotifyOfPropertyChange(() => NewAccountVisibility);
+            base.OnActivationProcessed(item, success);
+        }
     }
 }

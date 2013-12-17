@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Security.Cryptography;
 using Caliburn.Micro;
+using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
 
 namespace Jibbr.ViewModels
 {
-    public class AccountViewModel : Screen
+    public class AccountViewModel : ReactiveScreen
     {
         private agsXMPP.XmppClientConnection clientConnection;
         public AccountViewModel()
         {
             username = serverName = password = String.Empty;
+            ConnectionState = XmppConnectionState.Disconnected;
         }
 
         public void SignIn()
@@ -57,6 +59,7 @@ namespace Jibbr.ViewModels
             clientConnection.UseStartTLS = true;
             clientConnection.EnableCapabilities = true;*/
 
+            clientConnection.OnXmppConnectionStateChanged += OnXmppConnectionStateChanged;
             clientConnection.OnLogin += OnLogin;
             clientConnection.OnError += OnError;
             clientConnection.OnMessage += OnMessage;
@@ -76,13 +79,21 @@ namespace Jibbr.ViewModels
             clientConnection.OnSaslEnd += clientConnection_OnSaslEnd;
             clientConnection.OnSocketError += clientConnection_OnSocketError;
             clientConnection.OnStreamError += clientConnection_OnStreamError;
-            clientConnection.OnXmppConnectionStateChanged += clientConnection_OnXmppConnectionStateChanged;
             clientConnection.OnReadSocketData += clientConnection_OnReadSocketData;
             clientConnection.OnReadXml += clientConnection_OnReadXml;
             clientConnection.OnWriteSocketData += clientConnection_OnWriteSocketData;
             clientConnection.OnWriteXml += clientConnection_OnWriteXml;
             clientConnection.ClientSocket.OnValidateCertificate += ClientSocket_OnValidateCertificate;
             clientConnection.Open();
+        }
+
+        public void SignOut()
+        {
+            if (this.clientConnection == null)
+                return;
+
+            clientConnection.Close();
+            clientConnection = null;
         }
 
         bool ClientSocket_OnValidateCertificate(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
@@ -107,9 +118,7 @@ namespace Jibbr.ViewModels
         }
 
         #region Superfulous XMPP Stuff
-        void clientConnection_OnXmppConnectionStateChanged(object sender, XmppConnectionState state)
-        {
-        }
+        
 
         void clientConnection_OnStreamError(object sender, agsXMPP.Xml.Dom.Element e)
         {
@@ -153,6 +162,12 @@ namespace Jibbr.ViewModels
         #endregion
 
         #region XMPP Callbacks
+
+        void OnXmppConnectionStateChanged(object sender, XmppConnectionState state)
+        {
+            ConnectionState = state;
+        }
+
         private void OnLogin(object sender)
         {
         }
@@ -199,6 +214,11 @@ namespace Jibbr.ViewModels
 
                 useThisAccount = value;
                 NotifyOfPropertyChange(() => UseThisAccount);
+
+                if (useThisAccount)
+                    SignIn();
+                else
+                    SignOut();
             }
         }
 
@@ -279,6 +299,60 @@ namespace Jibbr.ViewModels
             get 
             {
                 return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
+            }
+        }
+
+        private XmppConnectionState connectionState = XmppConnectionState.Disconnected;
+        public XmppConnectionState ConnectionState
+        {
+            get { return connectionState; }
+            set
+            {
+                if (value == connectionState)
+                    return;
+
+                connectionState = value;
+                NotifyOfPropertyChange(() => ConnectionState);
+                NotifyOfPropertyChange(() => AccountStatus);
+            }
+        }
+        public String AccountStatus
+        {
+            get
+            {
+                switch (connectionState)
+                {
+                    case XmppConnectionState.Authenticated:
+                        return "Authenticated";
+                    case XmppConnectionState.Authenticating:
+                        return "Authenticating";
+                    case XmppConnectionState.Binded:
+                        return "Bound";
+                    case XmppConnectionState.Binding:
+                        return "Binding";
+                    case XmppConnectionState.Compressed:
+                        return "Compressed";
+                    case XmppConnectionState.Connected:
+                        return "Connected";
+                    case XmppConnectionState.Connecting:
+                        return "Connecting";
+                    case XmppConnectionState.Disconnected:
+                        return "Disconnected";
+                    case XmppConnectionState.Registered:
+                        return "Registered";
+                    case XmppConnectionState.Registering:
+                        return "Registering";
+                    case XmppConnectionState.Securing:
+                        return "Securing";
+                    case XmppConnectionState.SessionStarted:
+                        return "Session Started";
+                    case XmppConnectionState.StartCompression:
+                        return "Starting Compression";
+                    case XmppConnectionState.StartSession:
+                        return "Session Started";
+                };
+
+                return String.Empty;
             }
         }
         #endregion

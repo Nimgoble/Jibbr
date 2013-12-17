@@ -8,13 +8,23 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <StackPanel>
-            <Button 
-                x:Name="NewAccount" 
-                Content="New Account" 
-                Margin="10" 
-                Width="150"
-                Visibility="{Binding NewAccountVisibility}"
-            />
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button 
+                    x:Name="NewAccount" 
+                    Content="New Account" 
+                    Margin="10" 
+                    Width="150"
+                    Visibility="{Binding NewAccountVisibility}"
+                />
+                <Button 
+                    x:Name="EditAccount" 
+                    Content="Edit Account" 
+                    Margin="10" 
+                    Width="150"
+                    Visibility="{Binding NewAccountVisibility}"
+                    IsEnabled="{Binding EditAccountEnabled}"
+                />
+            </WrapPanel>
             <ContentControl x:Name="ActiveItem" />
         </StackPanel>
     </Grid>
