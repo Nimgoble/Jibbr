@@ -109,11 +109,12 @@
     </ApplicationDefinition>
     <Compile Include="Events\AddAccountEvent.cs" />
     <Compile Include="Events\CloseScreenEvent.cs" />
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\AccountsList.cs" />
     <Compile Include="ViewModels\AccountsListViewModel.cs" />
     <Compile Include="ViewModels\AccountsViewModel.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
-    <Compile Include="ViewModels\IShell.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\AccountsListView.xaml.cs">
@@ -192,9 +193,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Databases\" />
-    <Folder Include="Models\" />
+    <Resource Include="Databases\Accounts.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -21,6 +21,20 @@ namespace Jibbr.ViewModels
             ConnectionState = XmppConnectionState.Disconnected;
         }
 
+        public AccountViewModel(Jibbr.Models.Account account)
+        {
+            username = account.Username;
+            serverName = account.ServerName;
+            password = account.Password;
+            useTSL = account.UseTSL;
+            useSSL = account.UseSSL;
+            useThisAccount = account.UseThisAccount;
+            ConnectionState = XmppConnectionState.Disconnected;
+            if (useThisAccount)
+                SignIn();
+        }
+
+        #region Functions
         public void SignIn()
         {
             if (String.IsNullOrEmpty(serverName) || String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
@@ -97,6 +111,29 @@ namespace Jibbr.ViewModels
             clientConnection = null;
         }
 
+        #endregion
+
+        #region Conversion
+        /// <summary>
+        /// Converts this to an Account model, for Xml serialization
+        /// </summary>
+        /// <returns></returns>
+        public Jibbr.Models.Account ToAccount()
+        {
+            return new Models.Account()
+            {
+                Username = this.UserName,
+                Password = this.Password,
+                ServerName = this.ServerName,
+                UseSSL = this.UseSSL,
+                UseTSL = this.useTSL,
+                UseThisAccount = this.UseThisAccount
+            };
+        }
+        #endregion
+
+        #region Superfulous XMPP Stuff
+
         bool ClientSocket_OnValidateCertificate(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
         {
             return true;
@@ -117,9 +154,6 @@ namespace Jibbr.ViewModels
         void clientConnection_OnReadSocketData(object sender, byte[] data, int count)
         {
         }
-
-        #region Superfulous XMPP Stuff
-        
 
         void clientConnection_OnStreamError(object sender, agsXMPP.Xml.Dom.Element e)
         {
