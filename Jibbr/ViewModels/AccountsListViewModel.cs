@@ -44,6 +44,20 @@ namespace Jibbr.ViewModels
                 NotifyOfPropertyChange(() => Accounts);
             }
         }
+
+        private AccountViewModel selectedAccount;
+        public AccountViewModel SelectedAccount
+        {
+            get { return selectedAccount; }
+            set
+            {
+                if (value == selectedAccount)
+                    return;
+
+                selectedAccount = value;
+                NotifyOfPropertyChange(() => SelectedAccount);
+            }
+        }
         #endregion
     }
 }

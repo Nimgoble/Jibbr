@@ -22,7 +22,6 @@
                     Margin="10" 
                     Width="150"
                     Visibility="{Binding NewAccountVisibility}"
-                    IsEnabled="{Binding EditAccountEnabled}"
                 />
             </WrapPanel>
             <ContentControl x:Name="ActiveItem" />

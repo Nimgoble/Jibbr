@@ -15,12 +15,14 @@
                 Content="Main" 
                 Width="100"
                 Margin="10"
+                Visibility="{Binding MainVisibility}"
             />
             <Button 
                 x:Name="ShowAccounts" 
                 Content="Accounts" 
                 Width="100"
                 Margin="10"
+                Visibility="{Binding AccountsVisibility}"
             />
         </StackPanel>
         

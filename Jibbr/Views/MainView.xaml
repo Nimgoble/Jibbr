@@ -4,17 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
-             mc:Ignorable="d" >
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="500"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="50*" />
+            <ColumnDefinition Width="25*" />
         </Grid.ColumnDefinitions>
         
-        <StackPanel Grid.Column="1">
-            <ListView DataContext="{Binding Accounts}">
+        <ListView Grid.Column="0">
+            <!-- List of open chats goes here -->
+        </ListView>
+        
+        <!-- Current chat window -->
+        <ContentPresenter Grid.Column="1"/>
+        
+        <!-- List of accounts currently in use -->
+        <StackPanel Grid.Column="2">
+            <ListView ItemsSource="{Binding Accounts}">
                 <ListView.ItemTemplate>
                     <DataTemplate >
+                        <Expander Header="{Binding Path=AccountJid}" FontWeight="Bold">
+                            <ListView ItemsSource="{Binding Path=Friends}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Expander>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

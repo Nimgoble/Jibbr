@@ -25,6 +25,8 @@ namespace Jibbr.ViewModels
             eventAggregator.Subscribe(this);
             accountsListViewModel = new AccountsListViewModel(eventAggregator);
             this.ActivateItem(accountsListViewModel);
+            Action<AccountViewModel> onCanEdit = e => { NotifyOfPropertyChange(() => CanEditAccount); };
+            this.WhenAny(x => x.accountsListViewModel.SelectedAccount, x => x.Value).Subscribe(onCanEdit);
         }
 
         #region Commands
@@ -33,6 +35,19 @@ namespace Jibbr.ViewModels
             AddAccountViewModel accountViewModel = new AddAccountViewModel(eventAggregator);
             this.ActivateItem(accountViewModel);
         }
+
+        public void EditAccount()
+        {
+        }
+
+        public bool CanEditAccount
+        {
+            get
+            {
+                return (accountsListViewModel.SelectedAccount != null);
+            }
+        }
+
         #endregion
 
         #region IHandle

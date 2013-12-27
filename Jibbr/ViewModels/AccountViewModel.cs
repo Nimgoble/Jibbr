@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -194,6 +195,7 @@ namespace Jibbr.ViewModels
 
         private void OnRosterItem(object sender, agsXMPP.protocol.iq.roster.RosterItem item)
         {
+            friends.Add(item.Jid);
         }
 
         private void OnRosterEnd(object sender)
@@ -299,6 +301,20 @@ namespace Jibbr.ViewModels
             get 
             {
                 return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
+            }
+        }
+
+        private ObservableCollection<Jid> friends = new ObservableCollection<Jid>();
+        public ObservableCollection<Jid> Friends
+        {
+            get { return friends; }
+            set
+            {
+                if (value == friends)
+                    return;
+
+                friends = value;
+                NotifyOfPropertyChange(() => Friends);
             }
         }
 
