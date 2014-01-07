@@ -56,12 +56,14 @@ namespace Jibbr.ViewModels
             {
                 Server = serverName,
                 ConnectServer = null,
+                //ConnectServer = "bagmakers.local",
                 //ConnectServer = String.Format("http://{0}", serverName),
                 Username = username,
                 Password = password,
                 Port = 5222,
                 SocketConnectionType = agsXMPP.net.SocketConnectionType.Direct,
                 AutoResolveConnectServer = true,
+                //AutoResolveConnectServer = false,
                 KeepAlive = true,
                 UseSSL = useSSL,
                 UseStartTLS = useTLS,
@@ -71,14 +73,6 @@ namespace Jibbr.ViewModels
                 AutoPresence = true,
                 AutoRoster = true
             };
-
-            /*clientConnection.AutoResolveConnectServer = true;
-            clientConnection.Resource = "Jabber/XMPP";
-            clientConnection.Port = 5222;
-            clientConnection.UseSSL = false;
-            //clientConnection.SocketConnectionType = agsXMPP.net.SocketConnectionType.Direct;
-            clientConnection.UseStartTLS = true;
-            clientConnection.EnableCapabilities = true;*/
 
             clientConnection.OnXmppConnectionStateChanged += OnXmppConnectionStateChanged;
             clientConnection.OnLogin += OnLogin;
