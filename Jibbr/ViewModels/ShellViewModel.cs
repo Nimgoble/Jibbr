@@ -10,7 +10,7 @@ using Caliburn.Micro.ReactiveUI;
 namespace Jibbr.ViewModels
 {
     //[Export(typeof(IShell))]
-    public class ShellViewModel : Conductor<Screen>.Collection.OneActive
+    public class ShellViewModel : ReactiveConductor<IScreen>.Collection.OneActive
     {
         private MainViewModel mainViewModel;
         private AccountsViewModel accountsViewModel;
@@ -35,7 +35,7 @@ namespace Jibbr.ViewModels
             SetActiveItem(accountsViewModel);
         }
 
-        private void SetActiveItem(Screen item)
+        private void SetActiveItem(IScreen item)
         {
             ActiveItem = item;
             NotifyOfPropertyChange(() => AccountsVisibility);

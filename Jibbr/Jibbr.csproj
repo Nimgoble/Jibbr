@@ -107,14 +107,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Events\AccountActivatedEvent.cs" />
+    <Compile Include="Events\AccountDeactivatedEvent.cs" />
     <Compile Include="Events\AddAccountEvent.cs" />
     <Compile Include="Events\CloseScreenEvent.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountsList.cs" />
+    <Compile Include="Models\ChatMessage.cs" />
     <Compile Include="ViewModels\AccountsListViewModel.cs" />
     <Compile Include="ViewModels\AccountsViewModel.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
+    <Compile Include="ViewModels\ChatSessionViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
     <Compile Include="Views\AccountsListView.xaml.cs">
@@ -128,6 +132,9 @@
     </Compile>
     <Compile Include="Views\AddAccountView.xaml.cs">
       <DependentUpon>AddAccountView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChatSessionView.xaml.cs">
+      <DependentUpon>ChatSessionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
@@ -153,6 +160,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\AddAccountView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChatSessionView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -13,12 +13,16 @@
             <ColumnDefinition Width="25*" />
         </Grid.ColumnDefinitions>
         
-        <ListView Grid.Column="0">
-            <!-- List of open chats goes here -->
+        <ListView Grid.Column="0" SelectedItem="{Binding SelectedChatSession}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Target}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
         
         <!-- Current chat window -->
-        <ContentPresenter Grid.Column="1"/>
+        <ContentControl x:Name="SelectedChatSession" Grid.Column="1" />
         
         <!-- List of accounts currently in use -->
         <StackPanel Grid.Column="2">

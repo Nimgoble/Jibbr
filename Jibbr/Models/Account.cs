@@ -15,7 +15,7 @@ namespace Jibbr.Models
             //Init to String.Empty
             Username = Password = ServerName = String.Empty;
             //Init to false
-            UseTSL = UseSSL = UseThisAccount = false;
+            UseTLS = UseSSL = UseThisAccount = false;
         }
 
         [XmlAttribute]
@@ -25,7 +25,7 @@ namespace Jibbr.Models
         [XmlAttribute]
         public String ServerName { get; set; }
         [XmlAttribute]
-        public Boolean UseTSL { get; set; }
+        public Boolean UseTLS { get; set; }
         [XmlAttribute]
         public Boolean UseSSL { get; set; }
         [XmlAttribute]

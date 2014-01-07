@@ -9,12 +9,14 @@ using System.Security.Cryptography;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
+using agsXMPP.protocol.client;
 
 namespace Jibbr.ViewModels
 {
     public class AccountViewModel : ReactiveScreen
     {
         private agsXMPP.XmppClientConnection clientConnection;
+        private PresenceManager presenceManager;
         public AccountViewModel()
         {
             username = serverName = password = String.Empty;
@@ -26,7 +28,7 @@ namespace Jibbr.ViewModels
             username = account.Username;
             serverName = account.ServerName;
             password = account.Password;
-            useTSL = account.UseTSL;
+            useTLS = account.UseTLS;
             useSSL = account.UseSSL;
             useThisAccount = account.UseThisAccount;
             ConnectionState = XmppConnectionState.Disconnected;
@@ -35,6 +37,9 @@ namespace Jibbr.ViewModels
         }
 
         #region Functions
+        /// <summary>
+        /// Sign in with this account
+        /// </summary>
         public void SignIn()
         {
             if (String.IsNullOrEmpty(serverName) || String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
@@ -44,6 +49,7 @@ namespace Jibbr.ViewModels
             {
                 clientConnection.Close();
                 clientConnection = null;
+                presenceManager = null;
             }
 
             clientConnection = new XmppClientConnection()
@@ -58,7 +64,7 @@ namespace Jibbr.ViewModels
                 AutoResolveConnectServer = true,
                 KeepAlive = true,
                 UseSSL = useSSL,
-                UseStartTLS = useTSL,
+                UseStartTLS = useTLS,
                 Resource = "Jabber/XMPP",
                 UseCompression = true,
                 AutoAgents = true,
@@ -99,9 +105,15 @@ namespace Jibbr.ViewModels
             clientConnection.OnWriteSocketData += clientConnection_OnWriteSocketData;
             clientConnection.OnWriteXml += clientConnection_OnWriteXml;
             clientConnection.ClientSocket.OnValidateCertificate += ClientSocket_OnValidateCertificate;
+
+            presenceManager = new PresenceManager(clientConnection);
+
             clientConnection.Open();
         }
 
+        /// <summary>
+        /// Sign out
+        /// </summary>
         public void SignOut()
         {
             if (this.clientConnection == null)
@@ -109,6 +121,54 @@ namespace Jibbr.ViewModels
 
             clientConnection.Close();
             clientConnection = null;
+        }
+
+        /// <summary>
+        /// Send a message to a particular Jid
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="message"></param>
+        public void SendMessage(Jid target, String message)
+        {
+            //Only allow messages when the session is active
+            if (connectionState != XmppConnectionState.SessionStarted)
+                return;
+
+            agsXMPP.protocol.client.Message sendMessage = new agsXMPP.protocol.client.Message(target, message);
+            clientConnection.Send(sendMessage);
+        }
+        /// <summary>
+        /// Open up a new chat session with the target
+        /// </summary>
+        /// <param name="target"></param>
+        public void StartNewChatSession(Jid target)
+        {
+            lock (chatSessionsMutext)
+            {
+                //Do we already have a chat session open with this target?
+                ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target == target);
+                if (chatSession != null)
+                    return;
+
+                //Create and add.
+                chatSession = new ChatSessionViewModel(this, target);
+                chatSessions.Add(chatSession);
+                NotifyChatSessionStarted(chatSession);
+            }
+        }
+        #endregion
+
+        #region Events, etc.
+        /// <summary>
+        /// Used to notify the MainViewModel that a chat session has started
+        /// </summary>
+        /// <param name="chatSessionViewModel"></param>
+        public delegate void ChatSessionStartedHandler(ChatSessionViewModel chatSessionViewModel);
+        public event ChatSessionStartedHandler ChatSessionStarted;
+        private void NotifyChatSessionStarted(ChatSessionViewModel chatSessionViewModel)
+        {
+            if (ChatSessionStarted != null)
+                ChatSessionStarted(chatSessionViewModel);
         }
 
         #endregion
@@ -126,7 +186,7 @@ namespace Jibbr.ViewModels
                 Password = this.Password,
                 ServerName = this.ServerName,
                 UseSSL = this.UseSSL,
-                UseTSL = this.useTSL,
+                UseTLS = this.useTLS,
                 UseThisAccount = this.UseThisAccount
             };
         }
@@ -205,10 +265,12 @@ namespace Jibbr.ViewModels
 
         private void OnLogin(object sender)
         {
+            clientConnection.SendMyPresence();
         }
 
         private void OnPresence(object sender, agsXMPP.protocol.client.Presence pres)
         {
+            string debugme = String.Empty;
         }
 
         private void OnError(object sender, Exception ex)
@@ -221,6 +283,30 @@ namespace Jibbr.ViewModels
 
         private void OnMessage(object sender, agsXMPP.protocol.client.Message msg)
         {
+            lock (chatSessionsMutext)
+            {
+                //Do we have a chat session with the sender of this message?
+                ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target == msg.From);
+                if (chatSession == null)
+                {
+                    //Nope.  Create a new one.
+                    chatSession = new ChatSessionViewModel(this, msg.From);
+                    chatSessions.Add(chatSession);
+                    NotifyChatSessionStarted(chatSession);
+                }
+
+                //Add the message.
+                chatSession.OnMessage
+                (
+                    new Models.ChatMessage() 
+                    { 
+                        To = AccountJid.ToString(), 
+                        From = msg.From.ToString(), 
+                        Date = DateTime.Now, 
+                        Message = msg.Body 
+                    }
+                );
+            }
         }
 
         private void OnRosterStart(object sender)
@@ -239,6 +325,9 @@ namespace Jibbr.ViewModels
 
         #region Properties
 
+        /// <summary>
+        /// Whether or not we should sign in with this account
+        /// </summary>
         private bool useThisAccount;
         public bool UseThisAccount
         {
@@ -257,21 +346,26 @@ namespace Jibbr.ViewModels
                     SignOut();
             }
         }
-
-        private bool useTSL;
-        public bool UseTSL
+        
+        /// <summary>
+        /// XMPP connection setting
+        /// </summary>
+        private bool useTLS;
+        public bool UseTLS
         {
-            get { return useTSL; }
+            get { return useTLS; }
             set
             {
-                if (value == useTSL)
+                if (value == useTLS)
                     return;
 
-                useTSL = value;
-                NotifyOfPropertyChange(() => UseTSL);
+                useTLS = value;
+                NotifyOfPropertyChange(() => UseTLS);
             }
         }
-
+        /// <summary>
+        /// XMPP connection setting
+        /// </summary>
         private bool useSSL;
         public bool UseSSL
         {
@@ -286,6 +380,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// Our username for this server
+        /// </summary>
         private String username;
         public String UserName
         {
@@ -301,6 +398,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// Our password for this server
+        /// </summary>
         private String password;
         public String Password
         {
@@ -315,6 +415,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// The server we will be connecting to
+        /// </summary>
         private String serverName;
         public String ServerName
         {
@@ -330,6 +433,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// Our Jid for this account
+        /// </summary>
         public Jid AccountJid
         {
             get 
@@ -338,6 +444,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// A list of our friends
+        /// </summary>
         private ObservableCollection<Jid> friends = new ObservableCollection<Jid>();
         public ObservableCollection<Jid> Friends
         {
@@ -352,6 +461,9 @@ namespace Jibbr.ViewModels
             }
         }
 
+        /// <summary>
+        /// The connection state of this account
+        /// </summary>
         private XmppConnectionState connectionState = XmppConnectionState.Disconnected;
         public XmppConnectionState ConnectionState
         {
@@ -366,6 +478,9 @@ namespace Jibbr.ViewModels
                 NotifyOfPropertyChange(() => AccountStatus);
             }
         }
+        /// <summary>
+        /// A display-friendly version of connectionState.
+        /// </summary>
         public String AccountStatus
         {
             get
@@ -404,6 +519,16 @@ namespace Jibbr.ViewModels
 
                 return String.Empty;
             }
+        }
+
+        /// <summary>
+        /// Our active chat sessions
+        /// </summary>
+        private object chatSessionsMutext = new object();
+        private ObservableCollection<ChatSessionViewModel> chatSessions = new ObservableCollection<ChatSessionViewModel>();
+        public ObservableCollection<ChatSessionViewModel> ChatSessions
+        {
+            get { return chatSessions; }
         }
         #endregion
     }

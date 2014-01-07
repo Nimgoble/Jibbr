@@ -9,11 +9,14 @@ using System.Xml;
 using System.Xml.Serialization;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
+using ReactiveUI;
 using Jibbr.Events;
 
 namespace Jibbr.ViewModels
 {
-    public class AccountsListViewModel : ReactiveScreen, IHandle<AddAccountEvent>
+    public class AccountsListViewModel : 
+        ReactiveScreen, 
+        IHandle<AddAccountEvent>
     {
         private readonly IEventAggregator eventAggregator;
         public AccountsListViewModel(IEventAggregator eventAggregator)
@@ -21,6 +24,12 @@ namespace Jibbr.ViewModels
             this.eventAggregator = eventAggregator;
             eventAggregator.Subscribe(this);
             accounts = new ObservableCollection<AccountViewModel>();
+
+            reactiveAccounts = new ReactiveUI.ReactiveList<AccountViewModel>();
+            reactiveAccounts.ChangeTrackingEnabled = true;
+            System.Action<IObservedChange<AccountViewModel, object>> writeAccounts = (e) => { this.OnItemChanged(e); };
+            this.WhenAnyObservable(x => x.reactiveAccounts.ItemChanged).Subscribe(writeAccounts);
+
             LoadAccounts();
         }
 
@@ -36,7 +45,17 @@ namespace Jibbr.ViewModels
             {
                 Jibbr.Models.AccountsList accountsList = GetSavedAccounts();
                 foreach (Jibbr.Models.Account account in accountsList.Accounts)
-                    this.accounts.Add(new AccountViewModel(account));
+                {
+                    AccountViewModel accountViewModel = new AccountViewModel(account);
+                    this.accounts.Add(accountViewModel);
+                    this.reactiveAccounts.Add(accountViewModel);
+
+                    if (accountViewModel.UseThisAccount == true)
+                    {
+                        object ev = new Events.AccountActivatedEvent() { Account = accountViewModel };
+                        eventAggregator.Publish(ev);
+                    }
+                }
             }
         }
 
@@ -77,25 +96,51 @@ namespace Jibbr.ViewModels
                 serializer.Serialize(accountsFile, accountsList);
             }
         }
-        #endregion
 
-        #region IHandle
-        public void Handle(AddAccountEvent ev)
+        private void WriteAccountsToFile()
         {
-            accounts.Add(ev.Account);
-
             //Booooo.  Loads up the entire file again, adds the new account to the list, then re-writes the file. :\
-            Jibbr.Models.AccountsList accountsList = GetSavedAccounts();
-            accountsList.Accounts.Add(ev.Account.ToAccount());
+            Jibbr.Models.AccountsList accountsList = new Models.AccountsList();
+            var convertedAccounts = from accountvm in this.accounts select accountvm.ToAccount();
+            accountsList.Accounts.AddRange( convertedAccounts );
             using (FileStream accountsFile = new FileStream("Accounts.xml", FileMode.Truncate))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(Jibbr.Models.AccountsList));
                 serializer.Serialize(accountsFile, accountsList);
             }
         }
+
+        private void OnItemChanged(IObservedChange<AccountViewModel, object> change)
+        {
+            if (change.PropertyName == "UseThisAccount")
+            {
+                WriteAccountsToFile();
+
+                //Let everyone know
+                object ev = null;
+                if (change.Sender.UseThisAccount == true)
+                    ev = new Events.AccountActivatedEvent() { Account = change.Sender };
+                else
+                    ev = new Events.AccountDeactivatedEvent() { Account = change.Sender };
+
+                eventAggregator.Publish(ev);
+            }
+        }
+
+        #endregion
+
+        #region IHandle
+        public void Handle(AddAccountEvent ev)
+        {
+            accounts.Add(ev.Account);
+            reactiveAccounts.Add(ev.Account);
+            WriteAccountsToFile();
+        }
+       
         #endregion
 
         #region Properties
+        private ReactiveUI.ReactiveList<AccountViewModel> reactiveAccounts;
         private ObservableCollection<AccountViewModel> accounts;
         public ObservableCollection<AccountViewModel> Accounts
         {

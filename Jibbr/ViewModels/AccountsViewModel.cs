@@ -13,7 +13,7 @@ using Jibbr.Events;
 
 namespace Jibbr.ViewModels
 {
-    public class AccountsViewModel : 
+    public class AccountsViewModel :
         ReactiveConductor<ReactiveScreen>.Collection.OneActive, 
         IHandle<CloseScreenEvent>
     {
