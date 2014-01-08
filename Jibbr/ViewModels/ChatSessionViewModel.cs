@@ -52,6 +52,8 @@ namespace Jibbr.ViewModels
             {
                 messages.Add(new ChatMessage() { To = target.ToString(), From = account.DisplayName, Date = DateTime.Now, Message = sendText });
             }
+            //Reset the text
+            SendText = String.Empty;
         }
         /// <summary>
         /// Only allows us to send a message if our text is not empty or null
@@ -61,7 +63,9 @@ namespace Jibbr.ViewModels
         {
             get
             {
-                return (!String.IsNullOrEmpty(sendText) && (account.ConnectionState != XmppConnectionState.SessionStarted));
+                bool hasText = !String.IsNullOrEmpty(sendText);
+                bool isConnected = (account.ConnectionState == XmppConnectionState.SessionStarted);
+                return ( hasText && isConnected );
             }
         }
         #endregion
@@ -101,6 +105,7 @@ namespace Jibbr.ViewModels
 
                 sendText = value;
                 NotifyOfPropertyChange(() => SendText);
+                NotifyOfPropertyChange(() => CanSendMessage);
             }
         }
 

@@ -11,7 +11,21 @@
             <RowDefinition Height="75" />
         </Grid.RowDefinitions>
         
-        <ListBox ItemsSource="{Binding Message}" Grid.Row="0" />
+        <ListBox ItemsSource="{Binding Messages}" Grid.Row="0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}[{0}] {1}: {2}">
+                                <Binding Path="Date" />
+                                <Binding Path="From.User" />
+                                <Binding Path="Message" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

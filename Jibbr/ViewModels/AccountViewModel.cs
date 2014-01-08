@@ -23,6 +23,12 @@ namespace Jibbr.ViewModels
             ConnectionState = XmppConnectionState.Disconnected;
         }
 
+        ~AccountViewModel()
+        {
+            if (connectionState != XmppConnectionState.Disconnected)
+                SignOut();
+        }
+
         public AccountViewModel(Jibbr.Models.Account account)
         {
             username = account.Username;
@@ -52,11 +58,13 @@ namespace Jibbr.ViewModels
                 presenceManager = null;
             }
 
+            //TODO: If the server's jid winds up not being the same as our ServerName, disconnect the connection, set the ConnectServer = ServerName, set Server = jid, set AutoResolveConnectServer = false
+            //and then try to reconnect.
             clientConnection = new XmppClientConnection()
             {
                 Server = serverName,
                 ConnectServer = null,
-                //ConnectServer = "bagmakers.local",
+                //ConnectServer = /*SNIP*/,
                 //ConnectServer = String.Format("http://{0}", serverName),
                 Username = username,
                 Password = password,
@@ -115,6 +123,11 @@ namespace Jibbr.ViewModels
 
             clientConnection.Close();
             clientConnection = null;
+
+            lock (chatSessionsMutext)
+            {
+                chatSessions.Clear();
+            }
         }
 
         /// <summary>
@@ -137,6 +150,9 @@ namespace Jibbr.ViewModels
         /// <param name="target"></param>
         public void StartNewChatSession(Jid target)
         {
+            if (connectionState != XmppConnectionState.SessionStarted)
+                return;
+
             lock (chatSessionsMutext)
             {
                 //Do we already have a chat session open with this target?
@@ -148,6 +164,29 @@ namespace Jibbr.ViewModels
                 chatSession = new ChatSessionViewModel(this, target);
                 chatSessions.Add(chatSession);
                 NotifyChatSessionStarted(chatSession);
+            }
+        }
+        /// <summary>
+        /// Gets the timestamp from a message
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        private DateTime GetTimestamp(agsXMPP.protocol.client.Message msg)
+        {
+            try
+            {
+                DateTime timeStamp;
+                agsXMPP.protocol.x.Delay delay = msg.XDelay;
+                if (delay != null)
+                    timeStamp = delay.Stamp;
+                else
+                    timeStamp = DateTime.Now;
+
+                return timeStamp;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
             }
         }
         #endregion
@@ -203,6 +242,10 @@ namespace Jibbr.ViewModels
 
         void clientConnection_OnReadXml(object sender, string xml)
         {
+            if (connectionState == XmppConnectionState.Connected)
+            {
+                string debugMe = String.Empty;
+            }
         }
 
         void clientConnection_OnReadSocketData(object sender, byte[] data, int count)
@@ -227,6 +270,10 @@ namespace Jibbr.ViewModels
 
         void clientConnection_OnIq(object sender, agsXMPP.protocol.client.IQ iq)
         {
+            if (iq.Type == IqType.error)
+            {
+                //Notify of error here
+            }
         }
 
         void clientConnection_OnClose(object sender)
@@ -259,7 +306,7 @@ namespace Jibbr.ViewModels
 
         private void OnLogin(object sender)
         {
-            clientConnection.SendMyPresence();
+            //clientConnection.SendMyPresence();
         }
 
         private void OnPresence(object sender, agsXMPP.protocol.client.Presence pres)
@@ -294,9 +341,9 @@ namespace Jibbr.ViewModels
                 (
                     new Models.ChatMessage() 
                     { 
-                        To = AccountJid.ToString(), 
-                        From = msg.From.ToString(), 
-                        Date = DateTime.Now, 
+                        To = msg.To, 
+                        From = msg.From,
+                        Date = GetTimestamp(msg), 
                         Message = msg.Body 
                     }
                 );
@@ -309,7 +356,7 @@ namespace Jibbr.ViewModels
 
         private void OnRosterItem(object sender, agsXMPP.protocol.iq.roster.RosterItem item)
         {
-            friends.Add(item.Jid);
+            Execute.BeginOnUIThread(new System.Action(() => { friends.Add(item.Jid); }));
         }
 
         private void OnRosterEnd(object sender)
@@ -437,6 +484,16 @@ namespace Jibbr.ViewModels
                 return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
             }
         }
+        /// <summary>
+        /// Our Jid for this account
+        /// </summary>
+        /*public String AccountJid
+        {
+            get
+            {
+                return String.Format("{0}@{1}", UserName, ServerName);
+            }
+        }*/
 
         /// <summary>
         /// A list of our friends

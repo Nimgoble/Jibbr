@@ -26,6 +26,14 @@ namespace Jibbr.ViewModels
             eventAggregator.Subscribe(this);
         }
 
+        #region Functions
+        //TODO: Bind doubleclick to this function and set our SelectedChatSession to the resulting ChatSessionViewModel
+        //The problem: I'm not sure how to get the account in to the command arguments list from the front-end.
+        public void NewChatMessage(AccountViewModel account, agsXMPP.Jid target)
+        { 
+        }
+        #endregion
+
         #region IHandle
         /// <summary>
         /// Add an account that has been activated(UseThisAccount has been checked)
@@ -44,7 +52,17 @@ namespace Jibbr.ViewModels
         public void Handle(AccountDeactivatedEvent ev)
         {
             ev.Account.ChatSessionStarted -= ChatSessionStarted;
-            accounts.Remove(ev.Account);
+            foreach (ChatSessionViewModel chatSession in ev.Account.ChatSessions)
+                chatSessions.Remove(chatSession);
+
+            //This SUCKS, but FullJidComparer is throwing an exception when we do this.  And it doesn't make sense.
+            //I think a null value is getting passed to it.
+            try
+            {
+                accounts.Remove(ev.Account);
+            }
+            catch (Exception ex){}
+
             NotifyOfPropertyChange(() => Accounts);
         }
         #endregion
@@ -56,7 +74,7 @@ namespace Jibbr.ViewModels
         /// <param name="chatSessionViewModel"></param>
         void ChatSessionStarted(ChatSessionViewModel chatSessionViewModel)
         {
-            chatSessions.Add(chatSessionViewModel);
+            Execute.OnUIThread(new System.Action(() => { chatSessions.Add(chatSessionViewModel); }));
         }
         #endregion
 
@@ -85,7 +103,7 @@ namespace Jibbr.ViewModels
         /// A list of the active chat sessions
         /// </summary>
         private ObservableCollection<ChatSessionViewModel> chatSessions = new ObservableCollection<ChatSessionViewModel>();
-        public ObservableCollection<ChatSessionViewModel> ChatSession { get { return chatSessions; } }
+        public ObservableCollection<ChatSessionViewModel> ChatSessions { get { return chatSessions; } }
 
         /// <summary>
         /// The currently selected chat session

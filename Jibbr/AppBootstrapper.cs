@@ -14,6 +14,7 @@ namespace Jibbr
 
         protected override void Configure()
         {
+            Execute.InitializeWithDispatcher();
             _container.Instance<IWindowManager>(new WindowManager());
             _container.Singleton<IEventAggregator, EventAggregator>();
             _container.PerRequest<ShellViewModel>();

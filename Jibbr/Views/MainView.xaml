@@ -13,10 +13,14 @@
             <ColumnDefinition Width="25*" />
         </Grid.ColumnDefinitions>
         
-        <ListView Grid.Column="0" SelectedItem="{Binding SelectedChatSession}">
+        <ListView 
+            Grid.Column="0" 
+            SelectedItem="{Binding SelectedChatSession}" 
+            ItemsSource="{Binding ChatSessions}"
+        >
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Target}" />
+                    <TextBlock Text="{Binding Target.Bare}" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -25,22 +29,28 @@
         <ContentControl x:Name="SelectedChatSession" Grid.Column="1" />
         
         <!-- List of accounts currently in use -->
-        <StackPanel Grid.Column="2">
-            <ListView ItemsSource="{Binding Accounts}">
-                <ListView.ItemTemplate>
-                    <DataTemplate >
-                        <Expander Header="{Binding Path=AccountJid}" FontWeight="Bold">
-                            <ListView ItemsSource="{Binding Path=Friends}">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </Expander>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackPanel>
+        <ListView ItemsSource="{Binding Accounts}" Grid.Column="2">
+            <ListView.ItemTemplate>
+                <DataTemplate >
+                    <Expander 
+                        Header="{Binding Path=AccountJid}" 
+                        FontWeight="Bold" 
+                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    >
+                        <ListView ItemsSource="{Binding Path=Friends}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label 
+                                        Content="{Binding User}" 
+                                        cal:Action.TargetWithoutContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}}, Path=DataContext}" 
+                                        cal:Message.Attach="[Event MouseDoubleClick] = [Action StartNewChatSession($dataContext)]" 
+                                    />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Expander>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </UserControl>
