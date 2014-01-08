@@ -16,7 +16,8 @@ namespace Jibbr.ViewModels
 {
     public class AccountsListViewModel : 
         ReactiveScreen, 
-        IHandle<AddAccountEvent>
+        IHandle<AddAccountEvent>,
+        IHandle<EditAccountEvent>
     {
         private readonly IEventAggregator eventAggregator;
         public AccountsListViewModel(IEventAggregator eventAggregator)
@@ -134,6 +135,12 @@ namespace Jibbr.ViewModels
         {
             accounts.Add(ev.Account);
             reactiveAccounts.Add(ev.Account);
+            WriteAccountsToFile();
+        }
+
+        public void Handle(EditAccountEvent ev)
+        {
+            //This will have to do until we have a better way to replace a single account in the accounts.xml file.
             WriteAccountsToFile();
         }
        

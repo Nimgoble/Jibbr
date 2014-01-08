@@ -38,6 +38,8 @@ namespace Jibbr.ViewModels
 
         public void EditAccount()
         {
+            EditAccountViewModel accountViewModel = new EditAccountViewModel(eventAggregator, accountsListViewModel.SelectedAccount);
+            this.ActivateItem(accountViewModel);
         }
 
         public bool CanEditAccount
