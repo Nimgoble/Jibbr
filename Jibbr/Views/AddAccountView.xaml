@@ -37,7 +37,7 @@
                         Grid.Column="0" 
                         HorizontalAlignment="Center"/>
             <CheckBox 
-                        IsChecked="{Binding UseTSL}" 
+                        IsChecked="{Binding UseTLS}" 
                         Content="TSL" 
                         Grid.Column="1"
                         HorizontalAlignment="Center"/>
