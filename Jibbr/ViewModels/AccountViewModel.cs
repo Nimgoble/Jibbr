@@ -4,8 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Input;
 using System.Security.Cryptography;
+using System.Xml;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
@@ -15,8 +17,17 @@ namespace Jibbr.ViewModels
 {
     public class AccountViewModel : ReactiveScreen
     {
+        #region Private Members
+
         private agsXMPP.XmppClientConnection clientConnection;
         private PresenceManager presenceManager;
+        private bool autoResolveConnectServer = true;
+        private String connectServer = String.Empty;
+        private Timer reconnectTimer = null;
+        private bool reconnectOnDisconnect = false;
+
+        #endregion
+
         public AccountViewModel()
         {
             username = serverName = password = String.Empty;
@@ -38,18 +49,25 @@ namespace Jibbr.ViewModels
             useSSL = account.UseSSL;
             useThisAccount = account.UseThisAccount;
             ConnectionState = XmppConnectionState.Disconnected;
-            if (useThisAccount)
-                SignIn();
+            connectServer = account.ConnectServerName;
+            autoResolveConnectServer = account.AutoResolveConnectServer;
+            if (InitializeConnection())
+            {
+                if (useThisAccount)
+                    SignIn();
+            }
         }
 
         #region Functions
+
         /// <summary>
-        /// Sign in with this account
+        /// Initialize the connection for this account
         /// </summary>
-        public void SignIn()
+        /// <returns></returns>
+        private Boolean InitializeConnection()
         {
             if (String.IsNullOrEmpty(serverName) || String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
-                return;
+                return false;
 
             if (clientConnection != null)
             {
@@ -63,15 +81,12 @@ namespace Jibbr.ViewModels
             clientConnection = new XmppClientConnection()
             {
                 Server = serverName,
-                ConnectServer = null,
-                //ConnectServer = /*SNIP*/,
-                //ConnectServer = String.Format("http://{0}", serverName),
+                AutoResolveConnectServer = autoResolveConnectServer,
+                ConnectServer = connectServer,
                 Username = username,
                 Password = password,
                 Port = 5222,
                 SocketConnectionType = agsXMPP.net.SocketConnectionType.Direct,
-                AutoResolveConnectServer = true,
-                //AutoResolveConnectServer = false,
                 KeepAlive = true,
                 UseSSL = useSSL,
                 UseStartTLS = useTLS,
@@ -110,9 +125,18 @@ namespace Jibbr.ViewModels
 
             presenceManager = new PresenceManager(clientConnection);
 
+            return true;
+        }
+        /// <summary>
+        /// Sign in with this account
+        /// </summary>
+        public void SignIn()
+        {
+            if (this.clientConnection == null)
+                return;
+
             clientConnection.Open();
         }
-
         /// <summary>
         /// Sign out
         /// </summary>
@@ -122,14 +146,42 @@ namespace Jibbr.ViewModels
                 return;
 
             clientConnection.Close();
-            clientConnection = null;
 
             lock (chatSessionsMutext)
             {
                 chatSessions.Clear();
             }
         }
+        /// <summary>
+        /// Schedule a call to SignIn in 2.5 seconds
+        /// </summary>
+        /// <param name="interval"></param>
+        private void Reconnect(Int32 interval = 2500)
+        {
+            if (reconnectTimer != null)
+                return;
 
+            reconnectTimer = new Timer(){Interval = interval};
+            reconnectTimer.Elapsed += DoReconnect;
+            reconnectTimer.Start();
+        }
+        /// <summary>
+        /// Update connection configuration and call SignIn
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DoReconnect(object sender, ElapsedEventArgs e)
+        {
+            //Get rid of the timer
+            reconnectTimer.Stop();
+            reconnectTimer = null;
+            //Make sure the client connection's configuration is up to date
+            clientConnection.ConnectServer = connectServer;
+            clientConnection.AutoResolveConnectServer = autoResolveConnectServer;
+            clientConnection.Server = serverName;
+            //sign in
+            SignIn();
+        }
         /// <summary>
         /// Send a message to a particular Jid
         /// </summary>
@@ -244,7 +296,33 @@ namespace Jibbr.ViewModels
         {
             if (connectionState == XmppConnectionState.Connected)
             {
-                string debugMe = String.Empty;
+                try
+                {
+                    agsXMPP.Xml.Dom.Document document = new agsXMPP.Xml.Dom.Document();
+                    document.LoadXml(xml);
+                    if (document.ChildNodes.Count > 0)
+                    {
+                        foreach (agsXMPP.Xml.Dom.Node node in document.ChildNodes)
+                        {
+                            if (node is agsXMPP.protocol.Base.Stream)
+                            {
+                                agsXMPP.protocol.Base.Stream stream = node as agsXMPP.protocol.Base.Stream;
+                                if (stream.From != serverName && stream.From != connectServer)
+                                {
+                                    //Do reset here.
+                                    SignOut();
+                                    autoResolveConnectServer = false;
+                                    connectServer = serverName;
+                                    ServerName = stream.From;
+                                    reconnectOnDisconnect = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
             }
         }
 
@@ -272,12 +350,18 @@ namespace Jibbr.ViewModels
         {
             if (iq.Type == IqType.error)
             {
-                //Notify of error here
+                //TODO: Notify of error here
             }
         }
 
         void clientConnection_OnClose(object sender)
         {
+            //Did we manually disconnect the session due to incorrect server name settings?
+            if (reconnectOnDisconnect)
+            {
+                reconnectOnDisconnect = false;
+                Reconnect();
+            }
         }
 
         void clientConnection_OnBinded(object sender)
@@ -306,7 +390,6 @@ namespace Jibbr.ViewModels
 
         private void OnLogin(object sender)
         {
-            //clientConnection.SendMyPresence();
         }
 
         private void OnPresence(object sender, agsXMPP.protocol.client.Presence pres)
@@ -484,16 +567,6 @@ namespace Jibbr.ViewModels
                 return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
             }
         }
-        /// <summary>
-        /// Our Jid for this account
-        /// </summary>
-        /*public String AccountJid
-        {
-            get
-            {
-                return String.Format("{0}@{1}", UserName, ServerName);
-            }
-        }*/
 
         /// <summary>
         /// A list of our friends

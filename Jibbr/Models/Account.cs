@@ -13,9 +13,10 @@ namespace Jibbr.Models
         public Account()
         {
             //Init to String.Empty
-            Username = Password = ServerName = String.Empty;
+            Username = Password = ServerName = ConnectServerName = String.Empty;
             //Init to false
             UseTLS = UseSSL = UseThisAccount = false;
+            AutoResolveConnectServer = true;
         }
 
         [XmlAttribute]
@@ -25,10 +26,14 @@ namespace Jibbr.Models
         [XmlAttribute]
         public String ServerName { get; set; }
         [XmlAttribute]
+        public String ConnectServerName { get; set; }
+        [XmlAttribute]
         public Boolean UseTLS { get; set; }
         [XmlAttribute]
         public Boolean UseSSL { get; set; }
         [XmlAttribute]
         public Boolean UseThisAccount { get; set; }
+        [XmlAttribute]
+        public Boolean AutoResolveConnectServer { get; set; }
     }
 }
