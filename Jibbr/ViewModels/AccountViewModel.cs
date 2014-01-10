@@ -21,8 +21,6 @@ namespace Jibbr.ViewModels
 
         private agsXMPP.XmppClientConnection clientConnection;
         private PresenceManager presenceManager;
-        private bool autoResolveConnectServer = true;
-        private String connectServer = String.Empty;
         private Timer reconnectTimer = null;
         private bool reconnectOnDisconnect = false;
 
@@ -263,7 +261,17 @@ namespace Jibbr.ViewModels
             if (ChatSessionStarted != null)
                 ChatSessionStarted(chatSessionViewModel);
         }
-
+        /// <summary>
+        /// Notify any listeners that we've received a chat message.  Used for listeners that are late to the party, etc.
+        /// </summary>
+        /// <param name="chatSessionViewModel"></param>
+        public delegate void ChatMessageHandler(ChatSessionViewModel chatSessionViewModel);
+        public event ChatMessageHandler OnChatMessage;
+        private void NotifyChatChatMessage(ChatSessionViewModel chatSessionViewModel)
+        {
+            if (OnChatMessage != null)
+                OnChatMessage(chatSessionViewModel);
+        }
         #endregion
 
         #region Conversion
@@ -322,8 +330,8 @@ namespace Jibbr.ViewModels
                                 {
                                     //Do reset here.
                                     SignOut();
-                                    autoResolveConnectServer = false;
-                                    connectServer = serverName;
+                                    AutoResolveConnectServer = false;
+                                    ConnectServer = serverName;
                                     ServerName = stream.From;
                                     reconnectOnDisconnect = true;
                                 }
@@ -441,6 +449,8 @@ namespace Jibbr.ViewModels
                         Message = msg.Body 
                     }
                 );
+
+                OnChatMessage(chatSession);
             }
         }
 
@@ -582,6 +592,38 @@ namespace Jibbr.ViewModels
 
                 port = value;
                 NotifyOfPropertyChange(() => Port);
+            }
+        }
+        /// <summary>
+        /// Should we automatically resolve the connect server?
+        /// </summary>
+        private Boolean autoResolveConnectServer = true;
+        public Boolean AutoResolveConnectServer
+        {
+            get { return autoResolveConnectServer; }
+            set
+            {
+                if (value == autoResolveConnectServer)
+                    return;
+
+                autoResolveConnectServer = value;
+                NotifyOfPropertyChange(() => AutoResolveConnectServer);
+            }
+        }
+        /// <summary>
+        /// Our Connect Server
+        /// </summary>
+        private String connectServer = String.Empty;
+        public String ConnectServer
+        {
+            get { return connectServer; }
+            set
+            {
+                if (value == connectServer)
+                    return;
+
+                connectServer = value;
+                NotifyOfPropertyChange(() => ConnectServer);
             }
         }
 

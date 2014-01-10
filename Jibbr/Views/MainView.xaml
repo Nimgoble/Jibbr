@@ -20,7 +20,29 @@
         >
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Target.Bare}" />
+                    <Border Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="30" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock 
+                                Text="{Binding Target.Bare}" 
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                            />
+                            <Button
+                                Width="25"
+                                Height="25"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Content="X"
+                                Grid.Column="1"
+                                cal:Message.Attach="[Event Click] = [Action CloseChatSession($dataContext)]" 
+                            />
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -36,6 +58,7 @@
                         Header="{Binding Path=AccountJid}" 
                         FontWeight="Bold" 
                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                        IsExpanded="True"
                     >
                         <ListView ItemsSource="{Binding Path=Friends}">
                             <ListView.ItemTemplate>

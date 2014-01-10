@@ -113,10 +113,10 @@ namespace Jibbr.ViewModels
 
         private void OnItemChanged(IObservedChange<AccountViewModel, object> change)
         {
+            WriteAccountsToFile();
+
             if (change.PropertyName == "UseThisAccount")
             {
-                WriteAccountsToFile();
-
                 //Let everyone know
                 object ev = null;
                 if (change.Sender.UseThisAccount == true)

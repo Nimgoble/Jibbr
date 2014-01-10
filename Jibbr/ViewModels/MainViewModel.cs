@@ -32,6 +32,14 @@ namespace Jibbr.ViewModels
         public void NewChatMessage(AccountViewModel account, agsXMPP.Jid target)
         { 
         }
+        /// <summary>
+        /// Remove the specified chat session
+        /// </summary>
+        /// <param name="chatSession"></param>
+        public void CloseChatSession(ChatSessionViewModel chatSession)
+        {
+            chatSessions.Remove(chatSession);
+        }
         #endregion
 
         #region IHandle
@@ -72,9 +80,27 @@ namespace Jibbr.ViewModels
         /// Called whenever an account creates a new ChatSessionViewModel
         /// </summary>
         /// <param name="chatSessionViewModel"></param>
-        void ChatSessionStarted(ChatSessionViewModel chatSessionViewModel)
+        private void ChatSessionStarted(ChatSessionViewModel chatSessionViewModel)
         {
             Execute.OnUIThread(new System.Action(() => { chatSessions.Add(chatSessionViewModel); }));
+        }
+        /// <summary>
+        /// We may have closed this chat session, then gotten another message from the target.  Re-open it.
+        /// </summary>
+        /// <param name="chatSessionViewModel"></param>
+        private void OnChatMessage(ChatSessionViewModel chatSessionViewModel)
+        {
+            Execute.OnUIThread
+            (
+                new System.Action
+                (
+                    () => 
+                    { 
+                        if(!chatSessions.Contains(chatSessionViewModel))
+                            chatSessions.Add(chatSessionViewModel); 
+                    }
+                )
+            );
         }
         #endregion
 
