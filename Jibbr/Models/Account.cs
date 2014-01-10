@@ -17,6 +17,7 @@ namespace Jibbr.Models
             //Init to false
             UseTLS = UseSSL = UseThisAccount = false;
             AutoResolveConnectServer = true;
+            Port = 5222;
         }
 
         [XmlAttribute]
@@ -25,6 +26,8 @@ namespace Jibbr.Models
         public String Password { get; set; }
         [XmlAttribute]
         public String ServerName { get; set; }
+        [XmlAttribute]
+        public Int32 Port { get; set; }
         [XmlAttribute]
         public String ConnectServerName { get; set; }
         [XmlAttribute]

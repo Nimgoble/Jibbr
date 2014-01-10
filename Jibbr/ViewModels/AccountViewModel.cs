@@ -31,13 +31,8 @@ namespace Jibbr.ViewModels
         public AccountViewModel()
         {
             username = serverName = password = String.Empty;
+            port = 5222;
             ConnectionState = XmppConnectionState.Disconnected;
-        }
-
-        ~AccountViewModel()
-        {
-            if (connectionState != XmppConnectionState.Disconnected)
-                SignOut();
         }
 
         public AccountViewModel(Jibbr.Models.Account account)
@@ -51,6 +46,7 @@ namespace Jibbr.ViewModels
             ConnectionState = XmppConnectionState.Disconnected;
             connectServer = account.ConnectServerName;
             autoResolveConnectServer = account.AutoResolveConnectServer;
+            port = account.Port;
             if (InitializeConnection())
             {
                 if (useThisAccount)
@@ -58,6 +54,11 @@ namespace Jibbr.ViewModels
             }
         }
 
+        ~AccountViewModel()
+        {
+            if (connectionState != XmppConnectionState.Disconnected)
+                SignOut();
+        }
         #region Functions
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace Jibbr.ViewModels
                 ConnectServer = connectServer,
                 Username = username,
                 Password = password,
-                Port = 5222,
+                Port = port,
                 SocketConnectionType = agsXMPP.net.SocketConnectionType.Direct,
                 KeepAlive = true,
                 UseSSL = useSSL,
@@ -135,6 +136,16 @@ namespace Jibbr.ViewModels
             if (this.clientConnection == null)
                 return;
 
+            //Make sure the client connection's configuration is up to date
+            clientConnection.UseSSL = useSSL;
+            clientConnection.UseStartTLS = useTLS;
+            clientConnection.ConnectServer = connectServer;
+            clientConnection.AutoResolveConnectServer = autoResolveConnectServer;
+            clientConnection.Server = serverName;
+            clientConnection.Username = username;
+            clientConnection.Password = password;
+            clientConnection.Port = port;
+            //Open the connection
             clientConnection.Open();
         }
         /// <summary>
@@ -175,10 +186,7 @@ namespace Jibbr.ViewModels
             //Get rid of the timer
             reconnectTimer.Stop();
             reconnectTimer = null;
-            //Make sure the client connection's configuration is up to date
-            clientConnection.ConnectServer = connectServer;
-            clientConnection.AutoResolveConnectServer = autoResolveConnectServer;
-            clientConnection.Server = serverName;
+
             //sign in
             SignIn();
         }
@@ -272,7 +280,10 @@ namespace Jibbr.ViewModels
                 ServerName = this.ServerName,
                 UseSSL = this.UseSSL,
                 UseTLS = this.useTLS,
-                UseThisAccount = this.UseThisAccount
+                UseThisAccount = this.UseThisAccount,
+                Port = this.port,
+                AutoResolveConnectServer = autoResolveConnectServer,
+                ConnectServerName = connectServer
             };
         }
         #endregion
@@ -554,6 +565,23 @@ namespace Jibbr.ViewModels
                 serverName = value;
                 NotifyOfPropertyChange(() => ServerName);
                 NotifyOfPropertyChange(() => AccountJid);
+            }
+        }
+
+        /// <summary>
+        /// Server connection port
+        /// </summary>
+        private Int32 port;
+        public Int32 Port
+        {
+            get { return port; }
+            set
+            {
+                if (value == port)
+                    return;
+
+                port = value;
+                NotifyOfPropertyChange(() => Port);
             }
         }
 

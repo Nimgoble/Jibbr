@@ -30,6 +30,13 @@ namespace Jibbr.ViewModels
             //accounts.Add(NewAccountViewModel);
             //Send out add account event
             Jibbr.Events.AddAccountEvent addAccountEvent = new Events.AddAccountEvent();
+
+            //Aaaaaaaand what happens if this fails?  There should be an error message of some sort.
+            //Need form validation
+            Int32 portValue = 5222;
+            if (Int32.TryParse(portEntry, out portValue))
+                this.Port = portValue;
+
             addAccountEvent.Account = this;
             eventAggregator.Publish(addAccountEvent);
             //Send out close event
@@ -55,6 +62,9 @@ namespace Jibbr.ViewModels
                 if (String.IsNullOrEmpty(ServerName))
                     return false;
 
+                if (String.IsNullOrEmpty(PortEntry))
+                    return false;
+
                 return true;
             }
         }
@@ -69,6 +79,24 @@ namespace Jibbr.ViewModels
                     ScreenToClose = this
                 }
             );
+        }
+
+        /// <summary>
+        /// Server connection port
+        /// </summary>
+        private String portEntry;
+        public String PortEntry
+        {
+            get { return portEntry; }
+            set
+            {
+                if (value == portEntry)
+                    return;
+
+                portEntry = value;
+                NotifyOfPropertyChange(() => PortEntry);
+                NotifyOfPropertyChange(() => CanAddAccount);
+            }
         }
     }
 }

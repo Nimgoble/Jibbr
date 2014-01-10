@@ -25,6 +25,7 @@ namespace Jibbr.ViewModels
             ServerName = accountViewModel.ServerName;
             UseTLS = accountViewModel.UseTLS;
             UseSSL = accountViewModel.UseSSL;
+            Port = accountViewModel.Port.ToString();
         }
 
         #region Functions
@@ -40,6 +41,11 @@ namespace Jibbr.ViewModels
             accountViewModel.ServerName = serverName;
             accountViewModel.UseSSL = useSSL;
             accountViewModel.UseTLS = useTLS;
+            //Aaaaaaaand what happens if this fails?  There should be an error message of some sort.
+            //Need form validation
+            Int32 portValue = 5222;
+            if (Int32.TryParse(port, out portValue))
+                accountViewModel.Port = portValue;
 
             //Reconnect if we need to.
             if (accountViewModel.UseThisAccount)
@@ -170,6 +176,23 @@ namespace Jibbr.ViewModels
 
                 serverName = value;
                 NotifyOfPropertyChange(() => ServerName);
+            }
+        }
+
+        /// <summary>
+        /// Server connection port
+        /// </summary>
+        private String port;
+        public String Port
+        {
+            get { return port; }
+            set
+            {
+                if (value == port)
+                    return;
+
+                port = value;
+                NotifyOfPropertyChange(() => Port);
             }
         }
         #endregion
