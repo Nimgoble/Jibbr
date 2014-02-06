@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
@@ -11,21 +12,32 @@
             <RowDefinition Height="75" />
         </Grid.RowDefinitions>
         
-        <ListBox ItemsSource="{Binding Messages}" Grid.Row="0">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock>
-                        <TextBlock.Text>
-                            <MultiBinding StringFormat="{}[{0}] {1}: {2}">
-                                <Binding Path="Date" />
-                                <Binding Path="From.User" />
-                                <Binding Path="Message" />
-                            </MultiBinding>
-                        </TextBlock.Text>
-                    </TextBlock>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <DataGrid 
+            ItemsSource="{Binding Messages}" 
+            Grid.Row="0" 
+            HeadersVisibility="None" 
+            AutoGenerateColumns="False"
+        >
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Binding="{Binding Path=Date}"
+                    IsReadOnly="True"
+                    Width="Auto"
+                />
+                <DataGridTextColumn
+                    Binding="{Binding Path=From.User}"
+                    IsReadOnly="True"
+                    Width="Auto"
+                />
+                <DataGridTemplateColumn IsReadOnly="True" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
         
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -37,6 +49,7 @@
                 Grid.Column="0" 
                 Text="{Binding SendText, UpdateSourceTrigger=PropertyChanged}" 
                 Height="50"
+                cal:Message.Attach="[Event KeyDown] = [Action TrySendMessage($eventArgs)]"
             />
             
             <Button x:Name="SendMessage" Grid.Column="1" Content="Send" Height="50" />

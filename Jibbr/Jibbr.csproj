@@ -213,7 +213,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="TODO.txt" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Databases\Accounts.xml" />
   </ItemGroup>

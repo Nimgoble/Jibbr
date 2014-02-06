@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using ReactiveUI;
@@ -32,14 +33,37 @@ namespace Jibbr.ViewModels
         {
             lock (messagesLock)
             {
-                messages.Add(message);
+                //do it on the UI thread.
+                Execute.OnUIThread
+                (
+                    new System.Action
+                    (
+                        () =>
+                        {
+                            messages.Add(message);
+                            NotifyOfPropertyChange(() => Messages);
+                        }
+                    )
+                );
             }
-
-            NotifyOfPropertyChange(() => Messages);
         }
         #endregion
 
         #region Commands
+        /// <summary>
+        /// Used for 'Enter' keypress.  Can't use SendMessage, because CanSendMessage returns false, disabling the textbox, and locking us out.
+        /// </summary>
+        public void TrySendMessage(KeyEventArgs keyArgs)
+        {
+            if (keyArgs == null)
+                return;
+
+            if (!CanSendMessage)
+                return;
+
+            if(keyArgs.Key == Key.Enter && keyArgs.IsDown)
+                SendMessage();
+        }
         /// <summary>
         /// Send a message to our target
         /// </summary>
@@ -50,7 +74,7 @@ namespace Jibbr.ViewModels
 
             lock (messagesLock)
             {
-                messages.Add(new ChatMessage() { To = target.ToString(), From = account.DisplayName, Date = DateTime.Now, Message = sendText });
+                messages.Add(new ChatMessage() { To = target.ToString(), From = account.UserName, Date = DateTime.Now, Message = sendText });
             }
             //Reset the text
             SendText = String.Empty;

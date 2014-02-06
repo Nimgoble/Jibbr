@@ -199,8 +199,14 @@ namespace Jibbr.ViewModels
             if (connectionState != XmppConnectionState.SessionStarted)
                 return;
 
-            agsXMPP.protocol.client.Message sendMessage = new agsXMPP.protocol.client.Message(target, message);
+            agsXMPP.protocol.client.Message sendMessage = new agsXMPP.protocol.client.Message(target, MessageType.chat, message);
             clientConnection.Send(sendMessage);
+        }
+
+        public void TryStartNewChatSession(KeyEventArgs eventArgs, Jid target)
+        {
+            if (eventArgs.IsDown && eventArgs.Key == Key.Enter)
+                StartNewChatSession(target);
         }
         /// <summary>
         /// Open up a new chat session with the target
@@ -215,12 +221,14 @@ namespace Jibbr.ViewModels
             {
                 //Do we already have a chat session open with this target?
                 ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target == target);
-                if (chatSession != null)
-                    return;
+                if (chatSession == null)
+                {
+                    //Create and add.
+                    chatSession = new ChatSessionViewModel(this, target);
+                    chatSessions.Add(chatSession);
+                }
 
-                //Create and add.
-                chatSession = new ChatSessionViewModel(this, target);
-                chatSessions.Add(chatSession);
+                //Always notify
                 NotifyChatSessionStarted(chatSession);
             }
         }
@@ -429,7 +437,7 @@ namespace Jibbr.ViewModels
             lock (chatSessionsMutext)
             {
                 //Do we have a chat session with the sender of this message?
-                ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target == msg.From);
+                ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target.Bare == msg.From.Bare);
                 if (chatSession == null)
                 {
                     //Nope.  Create a new one.
@@ -450,7 +458,7 @@ namespace Jibbr.ViewModels
                     }
                 );
 
-                OnChatMessage(chatSession);
+                NotifyChatChatMessage(chatSession);
             }
         }
 
