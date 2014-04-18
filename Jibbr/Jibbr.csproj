@@ -107,6 +107,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviors\BubbleScrolling.cs" />
     <Compile Include="Events\AccountActivatedEvent.cs" />
     <Compile Include="Events\AccountDeactivatedEvent.cs" />
     <Compile Include="Events\AddAccountEvent.cs" />
@@ -115,6 +116,8 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountsList.cs" />
     <Compile Include="Models\ChatMessage.cs" />
+    <Compile Include="ViewModels\JIDViewModel.cs" />
+    <Compile Include="ViewModels\RosterGroupViewModel.cs" />
     <Compile Include="ViewModels\AccountsListViewModel.cs" />
     <Compile Include="ViewModels\AccountsViewModel.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />

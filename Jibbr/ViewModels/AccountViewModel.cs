@@ -18,14 +18,13 @@ namespace Jibbr.ViewModels
     public class AccountViewModel : ReactiveScreen
     {
         #region Private Members
-
         private agsXMPP.XmppClientConnection clientConnection;
         private PresenceManager presenceManager;
         private Timer reconnectTimer = null;
         private bool reconnectOnDisconnect = false;
-
         #endregion
 
+        #region Constructors/Destructor
         public AccountViewModel()
         {
             username = serverName = password = String.Empty;
@@ -57,8 +56,9 @@ namespace Jibbr.ViewModels
             if (connectionState != XmppConnectionState.Disconnected)
                 SignOut();
         }
-        #region Functions
+        #endregion
 
+        #region Methods
         /// <summary>
         /// Initialize the connection for this account
         /// </summary>
@@ -193,7 +193,7 @@ namespace Jibbr.ViewModels
         /// </summary>
         /// <param name="target"></param>
         /// <param name="message"></param>
-        public void SendMessage(Jid target, String message)
+        public void SendMessage(JIDViewModel target, String message)
         {
             //Only allow messages when the session is active
             if (connectionState != XmppConnectionState.SessionStarted)
@@ -203,7 +203,7 @@ namespace Jibbr.ViewModels
             clientConnection.Send(sendMessage);
         }
 
-        public void TryStartNewChatSession(KeyEventArgs eventArgs, Jid target)
+        public void TryStartNewChatSession(KeyEventArgs eventArgs, JIDViewModel target)
         {
             if (eventArgs.IsDown && eventArgs.Key == Key.Enter)
                 StartNewChatSession(target);
@@ -212,7 +212,7 @@ namespace Jibbr.ViewModels
         /// Open up a new chat session with the target
         /// </summary>
         /// <param name="target"></param>
-        public void StartNewChatSession(Jid target)
+        public void StartNewChatSession(JIDViewModel target)
         {
             if (connectionState != XmppConnectionState.SessionStarted)
                 return;
@@ -229,7 +229,7 @@ namespace Jibbr.ViewModels
                 }
 
                 //Always notify
-                NotifyChatSessionStarted(chatSession);
+                NotifyChatSessionInitiatedByUser(chatSession);
             }
         }
         /// <summary>
@@ -258,6 +258,18 @@ namespace Jibbr.ViewModels
         #endregion
 
         #region Events, etc.
+        /// <summary>
+        /// Used to notify the MainViewModel that a chat session has started
+        /// </summary>
+        /// <param name="chatSessionViewModel"></param>
+        public delegate void ChatSessionInitiatedByUserHandler(ChatSessionViewModel chatSessionViewModel);
+        public event ChatSessionInitiatedByUserHandler ChatSessionInitiatedByUser;
+        private void NotifyChatSessionInitiatedByUser(ChatSessionViewModel chatSessionViewModel)
+        {
+            if (ChatSessionInitiatedByUser != null)
+                ChatSessionInitiatedByUser(chatSessionViewModel);
+        }
+
         /// <summary>
         /// Used to notify the MainViewModel that a chat session has started
         /// </summary>
@@ -441,7 +453,7 @@ namespace Jibbr.ViewModels
                 if (chatSession == null)
                 {
                     //Nope.  Create a new one.
-                    chatSession = new ChatSessionViewModel(this, msg.From);
+                    chatSession = new ChatSessionViewModel(this, new JIDViewModel(msg.From, this));
                     chatSessions.Add(chatSession);
                     NotifyChatSessionStarted(chatSession);
                 }
@@ -468,7 +480,32 @@ namespace Jibbr.ViewModels
 
         private void OnRosterItem(object sender, agsXMPP.protocol.iq.roster.RosterItem item)
         {
-            Execute.BeginOnUIThread(new System.Action(() => { friends.Add(item.Jid); }));
+            Execute.BeginOnUIThread
+            (
+                new System.Action
+                (
+                    () => 
+                    {
+                        //Create the new JIDViewModel
+                        JIDViewModel jidvm = new JIDViewModel(item.Jid, this);
+                        //Add it to each group.  Create the group when needed
+                        agsXMPP.Xml.Dom.ElementList list = item.GetGroups();
+                        foreach (agsXMPP.Xml.Dom.Element element in list)
+                        {
+                            agsXMPP.protocol.Base.Group group = element as agsXMPP.protocol.Base.Group;
+                            RosterGroupViewModel rosterGroupVM = this.groups.SingleOrDefault(x => x.GroupName == group.Name);
+                            if (rosterGroupVM == null)
+                            {
+                                rosterGroupVM = new RosterGroupViewModel(group, this);
+                                this.groups.Add(rosterGroupVM);
+                            }
+                            rosterGroupVM.Members.Add(jidvm);
+                        }
+                        //Add to our friends
+                        friends.Add(jidvm); 
+                    }
+                )
+            );
         }
 
         private void OnRosterEnd(object sender)
@@ -638,19 +675,13 @@ namespace Jibbr.ViewModels
         /// <summary>
         /// Our Jid for this account
         /// </summary>
-        public Jid AccountJid
-        {
-            get 
-            {
-                return new Jid(String.Format("{0}@{1}", UserName, ServerName)); 
-            }
-        }
+        public Jid AccountJid { get { return new Jid(String.Format("{0}@{1}", UserName, ServerName)); } }
 
         /// <summary>
         /// A list of our friends
         /// </summary>
-        private ObservableCollection<Jid> friends = new ObservableCollection<Jid>();
-        public ObservableCollection<Jid> Friends
+        private ObservableCollection<JIDViewModel> friends = new ObservableCollection<JIDViewModel>();
+        public ObservableCollection<JIDViewModel> Friends
         {
             get { return friends; }
             set
@@ -662,6 +693,9 @@ namespace Jibbr.ViewModels
                 NotifyOfPropertyChange(() => Friends);
             }
         }
+
+        private ObservableCollection<RosterGroupViewModel> groups = new ObservableCollection<RosterGroupViewModel>();
+        public ObservableCollection<RosterGroupViewModel> Groups { get { return groups; } }
 
         /// <summary>
         /// The connection state of this account

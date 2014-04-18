@@ -5,18 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+
+using Jibbr.Events;
+using Jibbr.Models;
+
+using agsXMPP;
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using ReactiveUI;
-using Jibbr.Events;
-using Jibbr.Models;
-using agsXMPP;
 
 namespace Jibbr.ViewModels
 {
     public class ChatSessionViewModel : ReactiveScreen
     {
-        public ChatSessionViewModel(AccountViewModel account, Jid target)
+        public ChatSessionViewModel(AccountViewModel account, JIDViewModel target)
         {
             this.account = account;
             this.target = target;
@@ -106,8 +108,8 @@ namespace Jibbr.ViewModels
         /// <summary>
         /// The person that this account is chatting with
         /// </summary>
-        private Jid target;
-        public Jid Target { get { return target; } }
+        private JIDViewModel target;
+        public JIDViewModel Target { get { return target; } }
 
         /// <summary>
         /// Whichever account we are using to chat with the target

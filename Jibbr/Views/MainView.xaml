@@ -4,16 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:b="clr-namespace:Jibbr.Behaviors"
              mc:Ignorable="d"
+             x:Name="mainView"
              d:DesignHeight="400" d:DesignWidth="600">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="Auto" MinWidth="250" />
             <ColumnDefinition Width="50*" />
-            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         
         <ListView 
+            Margin="5 0"
             Grid.Column="0" 
             SelectedItem="{Binding SelectedChatSession}" 
             ItemsSource="{Binding ChatSessions}"
@@ -30,7 +34,7 @@
                             <TextBlock 
                                 Text="{Binding Target.Bare}" 
                                 Grid.Column="0"
-                                VerticalAlignment="Center"
+                                VerticalAlignment="Center" Margin="5 0"
                             />
                             <Button
                                 Width="25"
@@ -50,30 +54,88 @@
         <!-- Current chat window -->
         <ContentControl x:Name="SelectedChatSession" Grid.Column="1" />
         
-        <!-- List of accounts currently in use -->
-        <ListView ItemsSource="{Binding Accounts}" Grid.Column="2">
-            <ListView.ItemTemplate>
-                <DataTemplate >
-                    <Expander 
-                        Header="{Binding Path=AccountJid}" 
-                        FontWeight="Bold" 
-                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                        IsExpanded="True"
-                    >
-                        <ListView ItemsSource="{Binding Path=Friends}">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Label 
-                                        Content="{Binding User}" 
-                                        cal:Action.TargetWithoutContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}}, Path=DataContext}" 
-                                        cal:Message.Attach="[Event MouseDoubleClick] = [Action StartNewChatSession($dataContext)];[Event KeyDown] = [Action TryStartNewChatSession($eventArgs, $dataContext)]" 
-                                    />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Expander>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <!--<Grid Grid.Column="2"> -->
+            <!-- List of accounts currently in use -->
+            <ListView Margin="5 0" ItemsSource="{Binding Accounts}" Grid.Column="2" b:BubbleScrolling.IsSendingMouseWheelEventToParent="True" >
+                <ListView.ItemTemplate>
+                    <DataTemplate >
+                        <Expander 
+                            Header="{Binding Path=AccountJid}" 
+                            FontWeight="Bold" 
+                            FontSize="18"
+                            IsExpanded="True"
+                            Margin="5 0"
+                            b:BubbleScrolling.IsSendingMouseWheelEventToParent="True"
+                        >
+                            <Grid>
+                                <ListView ItemsSource="{Binding Path=Groups}" b:BubbleScrolling.IsSendingMouseWheelEventToParent="True">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Expander 
+                                                Margin="5"
+                                                Header="{Binding Path=GroupName}" 
+                                                FontWeight="Bold" 
+                                                FontSize="14"
+                                                IsExpanded="False"
+                                                b:BubbleScrolling.IsSendingMouseWheelEventToParent="True"
+                                            >
+                                                <ListView ItemsSource="{Binding Path=Members}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewKeyDown">
+                                                            <cal:ActionMessage 
+                                                                            cal:Bind.Model="{Binding ElementName=mainView, Path=DataContext}" 
+                                                                            MethodName="TryStartNewChatMessage"
+                                                                        >
+                                                                <cal:Parameter Value="$eventArgs" />
+                                                                <cal:Parameter Value="{Binding RelativeSource={RelativeSource AncestorType=ListView}, Path=SelectedItem}" />
+                                                            </cal:ActionMessage>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Label
+                                                                FontWeight="Normal"
+                                                                FontSize="12"
+                                                                Content="{Binding User}" 
+                                                                Focusable="True"
+                                                                VerticalAlignment="Center"
+                                                                BorderThickness="0"
+                                                                Background="Transparent"
+                                                                Cursor="Arrow"
+                                                                Margin="5 0"
+                                                            >
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="PreviewKeyDown">
+                                                                        <cal:ActionMessage 
+                                                                            cal:Bind.Model="{Binding ElementName=mainView, Path=DataContext}" 
+                                                                            MethodName="TryStartNewChatMessage"
+                                                                        >
+                                                                            <cal:Parameter Value="$eventArgs" />
+                                                                            <cal:Parameter Value="{Binding}" />
+                                                                        </cal:ActionMessage>
+                                                                    </i:EventTrigger>
+                                                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                                                        <cal:ActionMessage 
+                                                                            cal:Bind.Model="{Binding ElementName=mainView, Path=DataContext}" 
+                                                                            MethodName="StartNewChatMessage"
+                                                                        >
+                                                                            <cal:Parameter Value="{Binding}" />
+                                                                        </cal:ActionMessage>
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </Label>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </Expander>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
+                        </Expander>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        <!-- </Grid> -->
     </Grid>
 </UserControl>

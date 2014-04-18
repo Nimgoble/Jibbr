@@ -29,8 +29,15 @@ namespace Jibbr.ViewModels
         #region Functions
         //TODO: Bind doubleclick to this function and set our SelectedChatSession to the resulting ChatSessionViewModel
         //The problem: I'm not sure how to get the account in to the command arguments list from the front-end.
-        public void NewChatMessage(AccountViewModel account, agsXMPP.Jid target)
-        { 
+        public void StartNewChatMessage(JIDViewModel target)
+        {
+            target.Account.StartNewChatSession(target);//This is idiotic.
+        }
+
+        public void TryStartNewChatMessage(KeyEventArgs eventArgs, JIDViewModel target)
+        {
+            if (eventArgs.IsDown && eventArgs.Key == Key.Enter)
+                StartNewChatMessage(target);
         }
         /// <summary>
         /// Remove the specified chat session
@@ -50,6 +57,7 @@ namespace Jibbr.ViewModels
         public void Handle(AccountActivatedEvent ev)
         {
             ev.Account.ChatSessionStarted += ChatSessionStarted;
+            ev.Account.ChatSessionInitiatedByUser += ChatSessionInitiatedByUser;
             accounts.Add(ev.Account);
             NotifyOfPropertyChange(() => Accounts);
         }
@@ -77,12 +85,20 @@ namespace Jibbr.ViewModels
 
         #region Callbacks
         /// <summary>
-        /// Called whenever an account creates a new ChatSessionViewModel
+        /// Called whenever an account creates a new ChatSessionViewModel upon receiving a message from a JID that we did not previously have a chat session with
         /// </summary>
         /// <param name="chatSessionViewModel"></param>
         private void ChatSessionStarted(ChatSessionViewModel chatSessionViewModel)
         {
             Execute.OnUIThread(new System.Action(() => { chatSessions.Add(chatSessionViewModel); }));
+        }
+        /// <summary>
+        /// Called when we have successfully initiated a new chat session
+        /// </summary>
+        /// <param name="chatSessionViewModel"></param>
+        void ChatSessionInitiatedByUser(ChatSessionViewModel chatSessionViewModel)
+        {
+            Execute.OnUIThread(new System.Action(() => { chatSessions.Add(chatSessionViewModel); SelectedChatSession = chatSessionViewModel; }));
         }
         /// <summary>
         /// We may have closed this chat session, then gotten another message from the target.  Re-open it.

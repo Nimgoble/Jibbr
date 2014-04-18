@@ -13,22 +13,30 @@
         </Grid.RowDefinitions>
         
         <DataGrid 
+            CanUserReorderColumns="false"
+            CanUserAddRows="false"
+            CanUserDeleteRows="false"
+            CanUserSortColumns="false"
             ItemsSource="{Binding Messages}" 
             Grid.Row="0" 
             HeadersVisibility="None" 
             AutoGenerateColumns="False"
         >
             <DataGrid.Columns>
-                <DataGridTextColumn 
-                    Binding="{Binding Path=Date}"
-                    IsReadOnly="True"
-                    Width="Auto"
-                />
-                <DataGridTextColumn
-                    Binding="{Binding Path=From.User}"
-                    IsReadOnly="True"
-                    Width="Auto"
-                />
+                <DataGridTemplateColumn IsReadOnly="True" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Date}" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn IsReadOnly="True" Width="Auto">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding From.User}" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTemplateColumn IsReadOnly="True" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -53,7 +61,6 @@
             />
             
             <Button x:Name="SendMessage" Grid.Column="1" Content="Send" Height="50" />
-            
         </Grid>
     </Grid>
 </UserControl>
