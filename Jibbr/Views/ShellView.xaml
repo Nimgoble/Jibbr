@@ -4,28 +4,38 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:tb="http://www.hardcodet.net/taskbar"
+             xmlns:views="clr-namespace:Jibbr.Views"
+             xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
              mc:Ignorable="d" 
-             Width="600"
              Height="400"
-             d:DesignHeight="400" d:DesignWidth="600">
-    <DockPanel>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center">
-            <Button 
-                x:Name="ShowMain" 
-                Content="Main" 
-                Width="100"
-                Margin="10"
-                Visibility="{Binding MainVisibility}"
-            />
-            <Button 
-                x:Name="ShowAccounts" 
-                Content="Accounts" 
-                Width="100"
-                Margin="10"
-                Visibility="{Binding AccountsVisibility}"
-            />
-        </StackPanel>
+             x:Name="shellView"
+             d:DesignHeight="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="0" />
+        </Grid.RowDefinitions>
         
-        <ContentControl x:Name="ActiveItem" />
-    </DockPanel>
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="top" Margin="0 0 10 0">
+                <MenuItem Header="File">
+                    <MenuItem Header="Accounts" Visibility="{Binding AccountsVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowAccounts()]" />
+                    <MenuItem Header="Main"  Visibility="{Binding MainVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowMain()]" />
+                    <MenuItem Header="Exit Jibbr"  cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action CloseJibbr()]" />
+                </MenuItem>
+            </Menu>
+            
+            <ContentControl x:Name="ActiveItem" />
+        </DockPanel>
+
+        <tb:TaskbarIcon IconSource="../Content/JibbrIcon.ico" ToolTip="Jibbr" Grid.Row="1">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Show Jibbr" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowJibbr()]" />
+                    <MenuItem Header="Close Jibbr" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action CloseJibbr()]" />
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
+    </Grid>
 </Controls:MetroWindow>

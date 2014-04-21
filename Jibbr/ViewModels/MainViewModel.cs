@@ -5,10 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+
+using Jibbr.Events;
+using Jibbr.Models;
+
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using ReactiveUI;
-using Jibbr.Events;
 
 namespace Jibbr.ViewModels
 {
@@ -17,23 +20,65 @@ namespace Jibbr.ViewModels
         IHandle<AccountActivatedEvent>,
         IHandle<AccountDeactivatedEvent>
     {
+        #region Private Members
         private readonly IEventAggregator eventAggregator;
+        private DelayedSearchHelper<JIDViewModel> searchHelper;
+        #endregion
+
+        #region Constructor
         public MainViewModel(IEventAggregator eventAggregator)
         {
             accounts = new ObservableCollection<AccountViewModel>();
             DisplayName = "Jibbr";
             this.eventAggregator = eventAggregator;
             eventAggregator.Subscribe(this);
-        }
 
-        #region Functions
-        //TODO: Bind doubleclick to this function and set our SelectedChatSession to the resulting ChatSessionViewModel
-        //The problem: I'm not sure how to get the account in to the command arguments list from the front-end.
+            //Weeeeeeeeee lambdas
+            searchHelper = new DelayedSearchHelper<JIDViewModel>
+            (
+                500, //Interval
+                (tempSearchText) => //Search Action
+                {
+                    IEnumerable<JIDViewModel> allFriends = accounts.SelectMany(x => x.Friends).OrderBy(x => x.Bare);
+                    IEnumerable<JIDViewModel> tempSearchResults = null;
+                    if (String.IsNullOrEmpty(tempSearchText))
+                        tempSearchResults = allFriends;
+                    else
+                    {
+                        String lowerSearchText = tempSearchText.ToLower();
+                        tempSearchResults = from friend
+                                                in allFriends
+                                            where
+                                                friend.Bare.ToLower().Contains(lowerSearchText)
+                                            select friend;
+                    }
+                    return tempSearchResults;
+                },
+                (tempSearchResults) => //Search Done Action
+                {
+                    searchResults.Clear();
+                    foreach (JIDViewModel friend in tempSearchResults)
+                        searchResults.Add(friend);
+                }
+            );
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Starts a new chat message for the given JID
+        /// </summary>
+        /// <param name="target"></param>
         public void StartNewChatMessage(JIDViewModel target)
         {
             target.Account.StartNewChatSession(target);//This is idiotic.
+            ClearSearch();
         }
-
+        /// <summary>
+        /// Determines whether the given key should start a new chat message(enter)
+        /// </summary>
+        /// <param name="eventArgs"></param>
+        /// <param name="target"></param>
         public void TryStartNewChatMessage(KeyEventArgs eventArgs, JIDViewModel target)
         {
             if (eventArgs.IsDown && eventArgs.Key == Key.Enter)
@@ -46,6 +91,14 @@ namespace Jibbr.ViewModels
         public void CloseChatSession(ChatSessionViewModel chatSession)
         {
             chatSessions.Remove(chatSession);
+        }
+
+        public void ClearSearch()
+        {
+            SearchText = String.Empty;
+            searchHelper.ForceRefresh();
+            SearchResults.Clear();
+            SearchResultsVisible = false;
         }
         #endregion
 
@@ -163,6 +216,42 @@ namespace Jibbr.ViewModels
                 NotifyOfPropertyChange(() => SelectedChatSession);
             }
         }
+
+        private ObservableCollection<JIDViewModel> searchResults = new ObservableCollection<JIDViewModel>();
+        public ObservableCollection<JIDViewModel> SearchResults { get { return searchResults; } }
+
+        private String searchText = String.Empty;
+        public String SearchText
+        {
+            get { return searchText; }
+            set
+            {
+                if (value == searchText)
+                    return;
+
+                searchText = value;
+                NotifyOfPropertyChange(() => SearchText);
+                searchHelper.SearchText = value;
+                SearchResultsVisible = !String.IsNullOrEmpty(searchText);
+            }
+        }
+
+        private Boolean searchResultsVisible = false;
+        public Boolean SearchResultsVisible
+        {
+            get { return searchResultsVisible; }
+            set
+            {
+                if (value == searchResultsVisible)
+                    return;
+
+                searchResultsVisible = value;
+                NotifyOfPropertyChange(() => SearchResultsVisible);
+                NotifyOfPropertyChange(() => SearchResultsVisibility);
+            }
+        }
+
+        public System.Windows.Visibility SearchResultsVisibility { get { return (searchResultsVisible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed); } }
         #endregion
     }
 }

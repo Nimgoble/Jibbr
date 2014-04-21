@@ -63,7 +63,7 @@ namespace Jibbr.ViewModels
             if (!CanSendMessage)
                 return;
 
-            if(keyArgs.Key == Key.Enter && keyArgs.IsDown)
+            if (keyArgs.Key == Key.Enter && keyArgs.IsDown && (keyArgs.KeyboardDevice.Modifiers != ModifierKeys.Shift))
                 SendMessage();
         }
         /// <summary>

@@ -33,14 +33,23 @@
                 <DataGridTemplateColumn IsReadOnly="True" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding From.User}" HorizontalAlignment="Left" VerticalAlignment="Top"  />
+                            <TextBlock Text="{Binding From.User}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5 0"  />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn IsReadOnly="True" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                                <TextBox 
+                                    Text="{Binding Message}" 
+                                    TextWrapping="Wrap" 
+                                    Margin="10 0" 
+                                    IsReadOnly="True" 
+                                    HorizontalAlignment="Left" 
+                                    VerticalAlignment="Top" 
+                                    HorizontalContentAlignment="Left" 
+                                    VerticalContentAlignment="Top" 
+                                />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -57,7 +66,12 @@
                 Grid.Column="0" 
                 Text="{Binding SendText, UpdateSourceTrigger=PropertyChanged}" 
                 Height="50"
-                cal:Message.Attach="[Event KeyDown] = [Action TrySendMessage($eventArgs)]"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                AcceptsTab="True"
+                cal:Message.Attach="[Event PreviewKeyDown] = [Action TrySendMessage($eventArgs)]"
+                HorizontalContentAlignment="Left"
+                VerticalContentAlignment="Top"
             />
             
             <Button x:Name="SendMessage" Grid.Column="1" Content="Send" Height="50" />

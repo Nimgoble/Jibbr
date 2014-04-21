@@ -52,6 +52,9 @@
     <Reference Include="EntityFramework.SqlServerCompact">
       <HintPath>..\packages\EntityFramework.SqlServerCompact.6.0.1\lib\net45\EntityFramework.SqlServerCompact.dll</HintPath>
     </Reference>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net45\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.0.11.0.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
@@ -116,6 +119,8 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountsList.cs" />
     <Compile Include="Models\ChatMessage.cs" />
+    <Compile Include="Models\DelayedSearchHelper.cs" />
+    <Compile Include="Models\SimpleDelayedSearchHelper.cs" />
     <Compile Include="ViewModels\JIDViewModel.cs" />
     <Compile Include="ViewModels\RosterGroupViewModel.cs" />
     <Compile Include="ViewModels\AccountsListViewModel.cs" />
@@ -221,6 +226,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Databases\Accounts.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Content\JibbrIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

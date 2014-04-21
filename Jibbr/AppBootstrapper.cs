@@ -11,11 +11,12 @@ namespace Jibbr
     public class AppBootstrapper : Bootstrapper<ShellViewModel>
     {
         private readonly SimpleContainer _container = new SimpleContainer();
+        private readonly IWindowManager windowManager = new WindowManager();
 
         protected override void Configure()
         {
             Execute.InitializeWithDispatcher();
-            _container.Instance<IWindowManager>(new WindowManager());
+            _container.Instance<IWindowManager>(windowManager);
             _container.Singleton<IEventAggregator, EventAggregator>();
             _container.PerRequest<ShellViewModel>();
         }
@@ -34,6 +35,10 @@ namespace Jibbr
         {
             _container.BuildUp(instance);
         }
-        
+
+        protected override void OnExit(object sender, EventArgs e)
+        {
+            base.OnExit(sender, e);
+        }
     }
 }

@@ -498,6 +498,9 @@ namespace Jibbr.ViewModels
                             {
                                 rosterGroupVM = new RosterGroupViewModel(group, this);
                                 this.groups.Add(rosterGroupVM);
+                                //Shitty, but this is the only way to re-order an observable collection
+                                groups = new ObservableCollection<RosterGroupViewModel>(groups.OrderBy(x => x.GroupName));
+                                NotifyOfPropertyChange(() => Groups);
                             }
                             rosterGroupVM.Members.Add(jidvm);
                         }

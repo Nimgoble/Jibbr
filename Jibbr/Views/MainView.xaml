@@ -5,14 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:b="clr-namespace:Jibbr.Behaviors"
              mc:Ignorable="d"
              x:Name="mainView"
-             d:DesignHeight="400" d:DesignWidth="600">
+             d:DesignHeight="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" MinWidth="250" />
-            <ColumnDefinition Width="50*" />
+            <ColumnDefinition Width="50*" MinWidth="600" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         
@@ -54,9 +56,18 @@
         <!-- Current chat window -->
         <ContentControl x:Name="SelectedChatSession" Grid.Column="1" />
         
-        <!--<Grid Grid.Column="2"> -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="250" Height="30" />
+                <Button x:Name="ClearSearch" Content="Clear" Margin="5 0 " Width="75" Height="30" />
+            </StackPanel>
             <!-- List of accounts currently in use -->
-            <ListView Margin="5 0" ItemsSource="{Binding Accounts}" Grid.Column="2" b:BubbleScrolling.IsSendingMouseWheelEventToParent="True" >
+            <ListView Margin="5 0" ItemsSource="{Binding Accounts}" Grid.Row="1" Grid.Column="0" b:BubbleScrolling.IsSendingMouseWheelEventToParent="True" >
                 <ListView.ItemTemplate>
                     <DataTemplate >
                         <Expander 
@@ -136,6 +147,58 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-        <!-- </Grid> -->
+        </Grid>
+        <Grid Grid.Column="3" Visibility="{Binding SearchResultsVisibility}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label 
+                Grid.Row="0"
+                Content="Search Results" 
+                HorizontalContentAlignment="Center" 
+                Height="50" 
+                FontSize="18" 
+                Margin="20 0" 
+                VerticalContentAlignment="Center" 
+            />
+            <ListView Grid.Row="1" ItemsSource="{Binding SearchResults}" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Label
+                                FontWeight="Normal"
+                                FontSize="12"
+                                Content="{Binding User}" 
+                                Focusable="True"
+                                VerticalAlignment="Center"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Cursor="Arrow"
+                                Margin="5 0"
+                            >
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewKeyDown">
+                                    <cal:ActionMessage 
+                                            cal:Bind.Model="{Binding ElementName=mainView, Path=DataContext}" 
+                                            MethodName="TryStartNewChatMessage"
+                                        >
+                                        <cal:Parameter Value="$eventArgs" />
+                                        <cal:Parameter Value="{Binding}" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <cal:ActionMessage 
+                                            cal:Bind.Model="{Binding ElementName=mainView, Path=DataContext}" 
+                                            MethodName="StartNewChatMessage"
+                                        >
+                                        <cal:Parameter Value="{Binding}" />
+                                    </cal:ActionMessage>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Label>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </Grid>
 </UserControl>
