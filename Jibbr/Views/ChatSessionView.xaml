@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:cal="clr-namespace:Caliburn.Micro;assembly=Caliburn.Micro" 
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:Behaviors="clr-namespace:Jibbr.Behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
@@ -21,7 +23,12 @@
             Grid.Row="0" 
             HeadersVisibility="None" 
             AutoGenerateColumns="False"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
         >
+            <i:Interaction.Behaviors>
+                <Behaviors:AutoScroller />
+            </i:Interaction.Behaviors>
             <DataGrid.Columns>
                 <DataGridTemplateColumn IsReadOnly="True" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
@@ -49,6 +56,7 @@
                                     VerticalAlignment="Top" 
                                     HorizontalContentAlignment="Left" 
                                     VerticalContentAlignment="Top" 
+                                    BorderThickness="0"
                                 />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

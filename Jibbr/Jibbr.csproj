@@ -110,12 +110,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviors\AutoScroller.cs" />
     <Compile Include="Behaviors\BubbleScrolling.cs" />
     <Compile Include="Events\AccountActivatedEvent.cs" />
     <Compile Include="Events\AccountDeactivatedEvent.cs" />
     <Compile Include="Events\AddAccountEvent.cs" />
     <Compile Include="Events\CloseScreenEvent.cs" />
     <Compile Include="Events\EditAccountEvent.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountsList.cs" />
     <Compile Include="Models\ChatMessage.cs" />

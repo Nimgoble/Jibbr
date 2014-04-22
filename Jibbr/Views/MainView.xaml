@@ -63,7 +63,7 @@
             </Grid.RowDefinitions>
             
             <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="250" Height="30" />
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="250" Height="30" VerticalContentAlignment="Center" />
                 <Button x:Name="ClearSearch" Content="Clear" Margin="5 0 " Width="75" Height="30" />
             </StackPanel>
             <!-- List of accounts currently in use -->

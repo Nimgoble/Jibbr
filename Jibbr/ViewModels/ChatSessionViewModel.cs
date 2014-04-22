@@ -76,7 +76,7 @@ namespace Jibbr.ViewModels
 
             lock (messagesLock)
             {
-                messages.Add(new ChatMessage() { To = target.ToString(), From = account.UserName, Date = DateTime.Now, Message = sendText });
+                messages.Add(new ChatMessage() { To = target.ToString(), From = account.AccountJid, Date = DateTime.Now, Message = sendText });
             }
             //Reset the text
             SendText = String.Empty;

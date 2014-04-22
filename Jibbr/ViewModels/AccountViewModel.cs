@@ -8,10 +8,12 @@ using System.Timers;
 using System.Windows.Input;
 using System.Security.Cryptography;
 using System.Xml;
+
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
 using agsXMPP.protocol.client;
+using agsXMPP.protocol.extensions.filetransfer;
 
 namespace Jibbr.ViewModels
 {
