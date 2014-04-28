@@ -39,6 +39,13 @@ namespace Jibbr.ViewModels
         public String User { get { return jabbrID.User; } }
         #endregion
 
+        #region Overridden
+        public override string ToString()
+        {
+            return jabbrID.ToString();
+        }
+        #endregion
+
         public static implicit operator Jid(JIDViewModel vm) { return vm.jabbrID; }
     }
 }

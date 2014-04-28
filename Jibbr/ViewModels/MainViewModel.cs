@@ -157,7 +157,7 @@ namespace Jibbr.ViewModels
         /// We may have closed this chat session, then gotten another message from the target.  Re-open it.
         /// </summary>
         /// <param name="chatSessionViewModel"></param>
-        private void OnChatMessage(ChatSessionViewModel chatSessionViewModel)
+        private void OnChatMessage(ChatSessionViewModel chatSessionViewModel, ChatMessage chatMessage)
         {
             Execute.OnUIThread
             (

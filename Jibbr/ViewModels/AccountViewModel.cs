@@ -9,6 +9,8 @@ using System.Windows.Input;
 using System.Security.Cryptography;
 using System.Xml;
 
+using Jibbr.Models;
+
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
@@ -195,14 +197,15 @@ namespace Jibbr.ViewModels
         /// </summary>
         /// <param name="target"></param>
         /// <param name="message"></param>
-        public void SendMessage(JIDViewModel target, String message)
+        public void SendMessage(ChatSessionViewModel chatSessionVM, ChatMessage chatMessage)
         {
             //Only allow messages when the session is active
             if (connectionState != XmppConnectionState.SessionStarted)
                 return;
 
-            agsXMPP.protocol.client.Message sendMessage = new agsXMPP.protocol.client.Message(target, MessageType.chat, message);
+            agsXMPP.protocol.client.Message sendMessage = new agsXMPP.protocol.client.Message(chatSessionVM.Target, chatMessage.MessageType, chatMessage.Message);
             clientConnection.Send(sendMessage);
+            NotifyChatChatMessage(chatSessionVM, chatMessage);
         }
 
         public void TryStartNewChatSession(KeyEventArgs eventArgs, JIDViewModel target)
@@ -287,12 +290,12 @@ namespace Jibbr.ViewModels
         /// Notify any listeners that we've received a chat message.  Used for listeners that are late to the party, etc.
         /// </summary>
         /// <param name="chatSessionViewModel"></param>
-        public delegate void ChatMessageHandler(ChatSessionViewModel chatSessionViewModel);
+        public delegate void ChatMessageHandler(ChatSessionViewModel chatSessionViewModel, ChatMessage chatMessage);
         public event ChatMessageHandler OnChatMessage;
-        private void NotifyChatChatMessage(ChatSessionViewModel chatSessionViewModel)
+        private void NotifyChatChatMessage(ChatSessionViewModel chatSessionViewModel, ChatMessage chatMessage)
         {
             if (OnChatMessage != null)
-                OnChatMessage(chatSessionViewModel);
+                OnChatMessage(chatSessionViewModel, chatMessage);
         }
         #endregion
 
@@ -454,25 +457,36 @@ namespace Jibbr.ViewModels
                 ChatSessionViewModel chatSession = chatSessions.SingleOrDefault(x => x.Target.Bare == msg.From.Bare);
                 if (chatSession == null)
                 {
+                    JIDViewModel friend = friends.SingleOrDefault(x => x.Bare == msg.From.Bare);
+                    if (friend == null)
+                    {
+                        friend = new JIDViewModel(msg.From, this);
+                        friends.Add(friend);
+                        //No way to get groups here. :\
+                    }
                     //Nope.  Create a new one.
-                    chatSession = new ChatSessionViewModel(this, new JIDViewModel(msg.From, this));
+                    chatSession = new ChatSessionViewModel(this, friend);
                     chatSessions.Add(chatSession);
                     NotifyChatSessionStarted(chatSession);
                 }
 
-                //Add the message.
-                chatSession.OnMessage
-                (
-                    new Models.ChatMessage() 
-                    { 
-                        To = msg.To, 
-                        From = msg.From,
-                        Date = GetTimestamp(msg), 
-                        Message = msg.Body 
-                    }
-                );
+                if (!String.IsNullOrEmpty(msg.Body))
+                {
+                    ChatMessage newMsg = new ChatMessage()
+                        {
+                            To = msg.To,
+                            From = msg.From,
+                            Date = GetTimestamp(msg),
+                            Message = msg.Body,
+                            MessageType = msg.Type
+                        };
+                    //Add the message.
+                    chatSession.OnMessage(newMsg);
 
-                NotifyChatChatMessage(chatSession);
+                    NotifyChatChatMessage(chatSession, newMsg);
+                }
+                else
+                    chatSession.OnChatState(msg.Chatstate);
             }
         }
 

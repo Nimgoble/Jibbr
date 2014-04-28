@@ -19,17 +19,25 @@
         
         <DockPanel Grid.Row="0">
             <Menu DockPanel.Dock="top" Margin="0 0 10 0">
-                <MenuItem Header="File">
-                    <MenuItem Header="Accounts" Visibility="{Binding AccountsVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowAccounts()]" />
-                    <MenuItem Header="Main"  Visibility="{Binding MainVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowMain()]" />
-                    <MenuItem Header="Exit Jibbr"  cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action CloseJibbr()]" />
+                <MenuItem Header="_File" VerticalContentAlignment="Center">
+                    <MenuItem Header="_Exit Jibbr"  cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action CloseJibbr()]" />
+                </MenuItem>
+                <MenuItem Header="_View" VerticalContentAlignment="Center">
+                    <MenuItem Header="_Accounts" Visibility="{Binding AccountsVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowAccounts()]" />
+                    <MenuItem Header="_Main"  Visibility="{Binding MainVisibility}" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowMain()]" />
                 </MenuItem>
             </Menu>
             
             <ContentControl x:Name="ActiveItem" />
         </DockPanel>
 
-        <tb:TaskbarIcon IconSource="../Content/JibbrIcon.ico" ToolTip="Jibbr" Grid.Row="1">
+        <tb:TaskbarIcon 
+            IconSource="../Content/JibbrIcon.ico" 
+            ToolTip="Jibbr" 
+            Grid.Row="1" 
+            cal:Action.TargetWithoutContext="{Binding}" 
+            cal:Message.Attach="[Event TrayMouseDoubleClick] = [Action ShowJibbr()]"
+        >
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Show Jibbr" cal:Action.TargetWithoutContext="{Binding}" cal:Message.Attach="[Event Click] = [Action ShowJibbr()]" />

@@ -4,8 +4,11 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Caliburn.Micro;
 using Caliburn.Micro.ReactiveUI;
+
+using Jibbr.Controllers;
 
 namespace Jibbr.ViewModels
 {
@@ -15,6 +18,7 @@ namespace Jibbr.ViewModels
         private MainViewModel mainViewModel;
         private AccountsViewModel accountsViewModel;
         private readonly IEventAggregator eventAggregator;
+        private LogController logController;
         private Boolean isClosing = false;
         #endregion
 
@@ -23,6 +27,8 @@ namespace Jibbr.ViewModels
         {
             this.eventAggregator = eventAggregator;
             ShellViewModel.WindowManager = windowManager;
+            logController = new LogController(eventAggregator);
+            logController.Initialize();
             mainViewModel = new MainViewModel(eventAggregator);
             accountsViewModel = new AccountsViewModel(eventAggregator);
             ActiveItem = mainViewModel;

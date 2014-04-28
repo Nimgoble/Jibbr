@@ -25,7 +25,7 @@ namespace Jibbr.ViewModels
             this.WhenAny(x => x.account, x => x.Value).Subscribe(x => raisePropertyChanged("CanSendMessage"));
         }
 
-        #region Functions
+        #region Methods
         /// <summary>
         /// Called when our account receives a message for us.  Locks our messages in case we try to send one at the
         /// same time.
@@ -48,6 +48,10 @@ namespace Jibbr.ViewModels
                     )
                 );
             }
+        }
+
+        public void OnChatState(agsXMPP.protocol.extensions.chatstates.Chatstate chatState)
+        {
         }
         #endregion
 
@@ -72,12 +76,14 @@ namespace Jibbr.ViewModels
         public void SendMessage()
         {
             //No need to lock this.  Doing so would cause a dead-lock
-            account.SendMessage(target, sendText);
+            ChatMessage newMsg = new ChatMessage() { To = target.ToString(), From = account.AccountJid, Message = sendText, MessageType = agsXMPP.protocol.client.MessageType.chat };
+            account.SendMessage(this, newMsg);
 
             lock (messagesLock)
             {
-                messages.Add(new ChatMessage() { To = target.ToString(), From = account.AccountJid, Date = DateTime.Now, Message = sendText });
+                messages.Add(newMsg);
             }
+
             //Reset the text
             SendText = String.Empty;
         }

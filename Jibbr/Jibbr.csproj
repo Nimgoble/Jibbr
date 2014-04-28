@@ -58,6 +58,9 @@
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.0.11.0.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI">
       <HintPath>..\packages\reactiveui-core.5.3.0\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
     </Reference>
@@ -112,6 +115,7 @@
     </ApplicationDefinition>
     <Compile Include="Behaviors\AutoScroller.cs" />
     <Compile Include="Behaviors\BubbleScrolling.cs" />
+    <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Events\AccountActivatedEvent.cs" />
     <Compile Include="Events\AccountDeactivatedEvent.cs" />
     <Compile Include="Events\AddAccountEvent.cs" />
@@ -122,6 +126,7 @@
     <Compile Include="Models\AccountsList.cs" />
     <Compile Include="Models\ChatMessage.cs" />
     <Compile Include="Models\DelayedSearchHelper.cs" />
+    <Compile Include="Models\JSONLogFile.cs" />
     <Compile Include="Models\SimpleDelayedSearchHelper.cs" />
     <Compile Include="ViewModels\JIDViewModel.cs" />
     <Compile Include="ViewModels\RosterGroupViewModel.cs" />
