@@ -16,6 +16,8 @@ using Caliburn.Micro.ReactiveUI;
 using agsXMPP;
 using agsXMPP.protocol.client;
 using agsXMPP.protocol.extensions.filetransfer;
+using agsXMPP.protocol.iq.register;
+using agsXMPP.Xml.Dom;
 
 namespace Jibbr.ViewModels
 {
@@ -67,7 +69,7 @@ namespace Jibbr.ViewModels
         /// Initialize the connection for this account
         /// </summary>
         /// <returns></returns>
-        private Boolean InitializeConnection()
+        public Boolean InitializeConnection()
         {
             if (String.IsNullOrEmpty(serverName) || String.IsNullOrEmpty(username) || String.IsNullOrEmpty(password))
                 return false;
@@ -109,6 +111,9 @@ namespace Jibbr.ViewModels
             clientConnection.OnRosterEnd += OnRosterEnd;
             clientConnection.OnAuthError += OnAuthError;
             clientConnection.OnPresence += OnPresence;
+			clientConnection.OnRegisterError += ClientConnectionOnOnRegisterError;
+			clientConnection.OnRegisterInformation += ClientConnectionOnOnRegisterInformation;
+			clientConnection.OnRegistered += ClientConnectionOnOnRegistered;
 
             clientConnection.OnAgentStart += clientConnection_OnAgentStart;
             clientConnection.OnAgentItem += clientConnection_OnAgentItem;
@@ -130,10 +135,26 @@ namespace Jibbr.ViewModels
 
             return true;
         }
-        /// <summary>
+
+	    private void ClientConnectionOnOnRegistered(object sender)
+	    {
+			string debugme = string.Empty;
+	    }
+
+	    private void ClientConnectionOnOnRegisterInformation(object sender, RegisterEventArgs args)
+	    {
+			string debugme = string.Empty;
+	    }
+
+	    private void ClientConnectionOnOnRegisterError(object sender, Element element)
+	    {
+		    string debugme = string.Empty;
+	    }
+
+	    /// <summary>
         /// Sign in with this account
         /// </summary>
-        public void SignIn()
+		public void SignIn(bool registerAccount = false)
         {
             if (this.clientConnection == null)
                 return;
@@ -147,6 +168,7 @@ namespace Jibbr.ViewModels
             clientConnection.Username = username;
             clientConnection.Password = password;
             clientConnection.Port = port;
+	        clientConnection.RegisterAccount = registerAccount;
             //Open the connection
             clientConnection.Open();
         }
@@ -366,12 +388,17 @@ namespace Jibbr.ViewModels
                 }
                 catch (Exception ex)
                 {
+	                string debugme = string.Empty;
                 }
             }
         }
 
         void clientConnection_OnReadSocketData(object sender, byte[] data, int count)
         {
+	        if (count > 0)
+	        {
+				string dataString = System.Text.Encoding.Default.GetString(data);    
+	        }
         }
 
         void clientConnection_OnStreamError(object sender, agsXMPP.Xml.Dom.Element e)
@@ -434,6 +461,7 @@ namespace Jibbr.ViewModels
 
         private void OnLogin(object sender)
         {
+	        string debugme = string.Empty;
         }
 
         private void OnPresence(object sender, agsXMPP.protocol.client.Presence pres)
@@ -443,10 +471,12 @@ namespace Jibbr.ViewModels
 
         private void OnError(object sender, Exception ex)
         {
+			string debugme = string.Empty;
         }
 
         private void OnAuthError(object sender, agsXMPP.Xml.Dom.Element e)
         {
+			string debugme = string.Empty;
         }
 
         private void OnMessage(object sender, agsXMPP.protocol.client.Message msg)

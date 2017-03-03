@@ -23,6 +23,7 @@ namespace Jibbr.ViewModels
             this.WhenAny(x => x.ServerName, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
             this.WhenAny(x => x.UserName, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
             this.WhenAny(x => x.Password, x => x.Value).Subscribe(x => raisePropertyChanged("CanAddAccount"));
+	        this.WhenAny(x => x.CanAddAccount, x => x.Value).Subscribe(x => raisePropertyChanged("CanRegisterAccount"));
         }
 
         public void AddAccount()
@@ -81,10 +82,18 @@ namespace Jibbr.ViewModels
             );
         }
 
+	    public void RegisterAccount()
+	    {
+			this.InitializeConnection();
+			this.SignIn(true);
+	    }
+
+	    public bool CanRegisterAccount { get { return CanAddAccount; } }
+
         /// <summary>
         /// Server connection port
         /// </summary>
-        private String portEntry;
+        private String portEntry = "5222";
         public String PortEntry
         {
             get { return portEntry; }

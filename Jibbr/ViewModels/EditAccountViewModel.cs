@@ -26,9 +26,13 @@ namespace Jibbr.ViewModels
             UseTLS = accountViewModel.UseTLS;
             UseSSL = accountViewModel.UseSSL;
             Port = accountViewModel.Port.ToString();
+			this.WhenAny(x => x.ServerName, x => x.Value).Subscribe(x => raisePropertyChanged("CanEditAccount"));
+			this.WhenAny(x => x.UserName, x => x.Value).Subscribe(x => raisePropertyChanged("CanEditAccount"));
+			this.WhenAny(x => x.Password, x => x.Value).Subscribe(x => raisePropertyChanged("CanEditAccount"));
+			this.WhenAny(x => x.CanEditAccount, x => x.Value).Subscribe(x => raisePropertyChanged("CanRegisterAccount"));
         }
 
-        #region Functions
+        #region Methods
         public void EditAccount()
         {
             //Disconnect to make the changes
@@ -92,6 +96,13 @@ namespace Jibbr.ViewModels
                 }
             );
         }
+
+		public void RegisterAccount() {
+			accountViewModel.InitializeConnection();
+			accountViewModel.SignIn(true);
+		}
+
+		public bool CanRegisterAccount { get { return CanEditAccount; } }
         #endregion
 
         #region Properties

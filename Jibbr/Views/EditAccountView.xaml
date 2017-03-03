@@ -5,32 +5,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <StackPanel Height="275" Width="300">
+             d:DesignHeight="325" d:DesignWidth="300">
+    <StackPanel Height="325" Width="300">
         <TextBox
-                    Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}"
-                    Width="250"
-                    Height="30" 
-                    Margin="10" 
-                    Controls:TextboxHelper.Watermark="Server"/>
+            Text="{Binding ServerName, UpdateSourceTrigger=PropertyChanged}"
+            Width="250"
+            Height="30" 
+            Margin="10" 
+            Controls:TextboxHelper.Watermark="Server"/>
         <TextBox 
-                    Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" 
-                    Width="250" 
-                    Height="30" 
-                    Margin="10" 
-                    Controls:TextboxHelper.Watermark="Port"/>
+            Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" 
+            Width="250" 
+            Height="30" 
+            Margin="10" 
+            Controls:TextboxHelper.Watermark="Port"/>
         <TextBox 
-                    Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" 
-                    Width="250" 
-                    Height="30" 
-                    Margin="10" 
-                    Controls:TextboxHelper.Watermark="Username"/>
+            Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" 
+            Width="250" 
+            Height="30" 
+            Margin="10" 
+            Controls:TextboxHelper.Watermark="Username"/>
         <TextBox 
-                    Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" 
-                    Width="250" 
-                    Height="30" 
-                    Margin="10" 
-                    Controls:TextboxHelper.Watermark="Password"/>
+            Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" 
+            Width="250" 
+            Height="30" 
+            Margin="10" 
+            Controls:TextboxHelper.Watermark="Password"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -54,22 +54,36 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition />
+			</Grid.RowDefinitions>
             <Button 
-                        x:Name="EditAccount" 
-                        Grid.Column="0" 
-                        HorizontalAlignment="Center" 
-                        Content="Okay" 
-                        Width="75"
-                        Margin="10"
-                    />
+                x:Name="EditAccount" 
+                Grid.Column="0" 
+                HorizontalAlignment="Center" 
+                Content="Okay" 
+                Width="75"
+                Margin="10"
+            />
             <Button 
-                        x:Name="CancelEdit" 
-                        Grid.Column="1" 
-                        HorizontalAlignment="Center" 
-                        Content="Cancel" 
-                        Width="75"
-                        Margin="10"
-                    />
+                x:Name="CancelEdit" 
+                Grid.Column="1" 
+                HorizontalAlignment="Center" 
+                Content="Cancel" 
+                Width="75"
+                Margin="10"
+            />
+			<Button 
+                x:Name="RegisterAccount" 
+                Grid.Column="0" 
+				Grid.ColumnSpan="2"
+				Grid.Row="1"
+                HorizontalAlignment="Center" 
+                Content="Register" 
+                Width="75"
+                Margin="10"
+            />
         </Grid>
     </StackPanel>
 </UserControl>
